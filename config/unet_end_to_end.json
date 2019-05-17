@@ -1,0 +1,51 @@
+{
+    "jobs": {
+		"setup_unet": {
+			"dependencies": [],
+			"type": "setup",
+			"configfile": "config/setup_unet.json"
+		},
+		"train_unet": {
+			"dependencies": ["setup_unet"],
+			"type": "train",
+			"config": {
+				"Epochs": 1,
+				"Splits": [0],
+				"Model Source": "setup_unet",
+				"Patch size": [
+				 36,
+				 36,
+				 36
+				],
+				"Nifti Source": "D:/MICCAI_BraTS_2018_Data_Training/*/",
+				"Batch size": 1,
+				"Batches per epoch": 1,
+				"Testsplits": [],
+				"Sequences": ["t2", "t1", "flair", "t1Gd"]
+			}
+		},
+		"eval_nifti": {
+			"dependencies": ["train_unet"],
+			"type": "eval",
+			"config": {
+				"Nifti Source": "D:/MICCAI_BraTS_2018_Data_Training/*/",
+				"Splits": [0],
+				"Model Source": "train_unet",
+				"Patch size": [
+					 84,
+					 84,
+					 84
+				],
+				"Batch size": 1,
+				"Output type": "save",
+				"Only first": true
+			}
+		}
+	},
+	"execution": [
+			"setup_unet",
+			"train_unet",
+			"eval_nifti"
+	]
+
+}

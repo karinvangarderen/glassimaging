@@ -1,0 +1,16 @@
+#!/bin/sh 
+
+#SBATCH -p $partition #Select partition
+#SBATCH -t $timelimit
+#SBATCH -o $outfile  # send stdout to outfile
+#SBATCH -e $errfile   # send stderr to errfile
+
+module load eb
+module load Miniconda3
+source activate pytorch
+
+$copystring
+
+$executestring
+
+source deactivate

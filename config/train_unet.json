@@ -1,0 +1,16 @@
+{
+				"Epochs": 1,
+				"Splits": [0],
+				"Model Source": "jobsetup",
+				"Patch size": [
+				 128,
+				 128,
+				 128
+				],
+                "Num Workers": 0,
+				"Nifti Source": "D:/MICCAI_BraTS_2018_Data_Training/*/",
+				"Batch size": 1,
+				"Batches per epoch": 1,
+				"Testsplits": [],
+				"Sequences": ["t2", "t1", "flair", "t1Gd"]
+			}

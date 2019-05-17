@@ -1,0 +1,13 @@
+{
+				"Nifti Source": "D:/MICCAI_BraTS_2018_Data_Training/*/",
+				"Splits": [0],
+				"Model Source": "train_unet",
+				"Patch size": [
+					 84,
+					 84,
+					 84
+				],
+				"Batch size": 1,
+				"Output type": "save",
+				"Only first": true
+			}
