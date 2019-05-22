@@ -87,7 +87,8 @@ class Brats18Dataset(NiftiDataset, Dataset):
     def __getitem__(self, idx):
         patientname = self.patients[idx]
         (image, segmentation) = self.loadSubjectImages(patientname, self.sequences)
-        sample = {'data': image, 'seg': segmentation, 'subject': patientname}
+        seg_file = self.getFileName(patientname, 'seg')
+        sample = {'data': image, 'seg': segmentation, 'seg_file': seg_file, 'subject': patientname}
         if self.transform is not None:
             sample = self.transform(sample)
         return sample
@@ -95,4 +96,3 @@ class Brats18Dataset(NiftiDataset, Dataset):
     def saveListOfPatients(self, path):
         with open(path, 'w') as file:
             json.dump(self.patients.tolist(), file)
-

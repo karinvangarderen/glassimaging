@@ -172,3 +172,12 @@ class StandardTrainer:
             scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
         return StandardTrainer(net, optimizer, scheduler)
 
+    def inferWithImage(self, image):
+        self.net = self.net.eval()
+        with torch.no_grad():
+            torchimage = image.float()
+            torchimage = torchimage.to(self.device)
+            output = self.net(torchimage)
+            output = output.detach()
+        return output
+

@@ -3,9 +3,9 @@
 				"Splits": [0],
 				"Model Source": "train_unet",
 				"Patch size": [
-					 84,
-					 84,
-					 84
+                    128,
+				    128,
+				    128
 				],
 				"Batch size": 1,
 				"Output type": "save",

@@ -60,7 +60,9 @@ class JobEval(Job):
         results = pd.DataFrame(columns = ['sample', 'subject', 'class', 'TP', 'FP', 'FN', 'TN', 'dice'])
         for i_batch, sample_batched in enumerate(dataloader):
             ######### TODO: work with original dataset
-            (images, segfiles, subjects) = sample_batched
+            images = sample_batched['data']
+            segfiles = sample_batched['seg_file']
+            subjects = sample_batched['subject']
             resultpaths = [os.path.join(self.tmpdir, s+'_segmented.nii.gz') for s in subjects]
             classifications = segmentNifti(images, segfiles, trainer, patchsize, patchsize, resultpaths)
             for i in range(0, len(subjects)):
