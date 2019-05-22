@@ -113,7 +113,6 @@ class StandardTrainer:
             for i_batch, sample_batched in enumerate(torchloader):
                 img = sample_batched["data"]
                 seg = sample_batched["seg"]
-                print(seg.shape)
                 loss = self.trainWithBatch(img, seg)
                 running_loss += loss.item()
                 num_items += img.size(0)
