@@ -109,27 +109,13 @@ class Experiment():
     """ Fetches the correct script for each job type. """        
     def getScriptForJob(self, jobname):
         jobtype = self.config["jobs"][jobname]['type']
-        if jobtype == 'test':
-            return 'jobs.jobtest'
+        if jobtype == 'eval':
+            return 'glassimaging.execution.jobs.jobeval'
         elif jobtype == 'train':
-            return 'jobs.jobtrain'
+            return 'glassimaging.execution.jobs.jobtrain'
         elif jobtype == 'setup':
-            return 'jobs.jobsetup'
-        elif jobtype == 'preprocess':
-            return 'jobs.jobpreprocess'
-        elif jobtype == 'eval':
-            return 'jobs.jobeval'
-        elif jobtype == 'eval_external':
-            return 'jobs.jobeval_external'
-        elif jobtype == 'trainEnsemble':
-            return 'jobs.jobtrainensemble'
-        elif jobtype == 'setupEnsemble':
-            return 'jobs.jobsetupensemble'
-        elif jobtype == 'visualization':
-            return 'jobs.jobvisualize'
-        elif jobtype == 'tsne':
-            return 'jobs.jobtsne'
-
+            return 'glassimaging.execution.jobs.jobsetup'
+        
     def getExecuteString(self, platform, names, jobscripts, configfiles, job_outputdirs):
         if platform == 'cartesius':
             return self.getExecuteStringCartesius(names, jobscripts, configfiles, job_outputdirs)
@@ -206,9 +192,9 @@ class Experiment():
             
     def getTemplatefile(self, platform):
         if platform == 'cartesius':
-            return 'execution/templates/cartesius.job'
+            return 'glassimaging/execution/templates/cartesius.job'
         elif platform == 'gpucluster':
-            return 'execution/templates/cluster.job'
+            return 'glassimaging/execution/templates/cluster.job'
     """
     platform: string describing the current platform
     names: list of strings
