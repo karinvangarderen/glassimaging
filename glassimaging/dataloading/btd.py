@@ -25,7 +25,7 @@ class BTD(NiftiDataset):
         self.segmentation = segmentation
         self.sequences = sequences
 
-    def importData(self, data_loc, nsplits=5, ):
+    def importData(self, data_loc, nsplits=5):
         subjects = os.listdir(data_loc)
         self.loc = data_loc
 

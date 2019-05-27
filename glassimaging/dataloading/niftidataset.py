@@ -84,9 +84,9 @@ class NiftiDataset:
     def saveSplits(self, loc):
         splits = self.df.split.unique()
         d = [None] * len(splits)
-        for s in splits:
+        for i, s in enumerate(splits):
             patients = self.df.loc[self.df['split'] == s].index.values
-            d[s] = list(patients)
+            d[i] = list(patients)
         path = os.path.join(loc, 'splits.json')
         with open(path, 'w') as file:
             json.dump(d, file, indent=1)
