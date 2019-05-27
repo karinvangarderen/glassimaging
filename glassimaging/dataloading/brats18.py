@@ -62,6 +62,17 @@ class Brats18(NiftiDataset):
         logging.info('Brats new Datamanager created from ' + loc + '.')
         return instance
 
+    def setSplits(self, splits_file):
+        """ Load the information on cross-validation splits from a json file
+        """
+        with open(splits_file, 'r') as file:
+            splits = json.load(file)
+        # Set all patient to split -1, so that only patients in the actual splits file are included
+        self.df['split'] = -1
+        for i in range(0, len(splits)):
+            for p in splits[i]:
+                self.df.at[p, 'split'] = i
+
     def getDataset(self, splits=(), sequences = None, transform=None):
         if len(splits) == 0:
             splits = range(0, self.nsplits)

@@ -93,13 +93,13 @@ class ResUNet(nn.Module):
 
 class DenseBlock(nn.Module):
 
-    def __init__(self, k=10, n=4, inputsize=32):
+    def __init__(self, k=10, n=4, inputsize=32, normgroups=1):
         super(DenseBlock, self).__init__()
         self.k = k
         self.n = n
         self.inputsize = inputsize
         self.convolutions = nn.ModuleList([nn.Conv3d(inputsize, inputsize, 3, padding=1) for _ in range(0, self.n)])
-        self.groupNorm = nn.ModuleList([nn.GroupNorm(1, inputsize) for _ in range(0, self.n)])
+        self.groupNorm = nn.ModuleList([nn.GroupNorm(normgroups, inputsize) for _ in range(0, self.n)])
 
     def forward(self, x):
         res = x
