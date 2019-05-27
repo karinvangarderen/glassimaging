@@ -8,7 +8,7 @@ from glassimaging.execution.jobs.job import Job
 import sys
 import os
 from torch.utils.data import DataLoader
-from glassimaging.training.standardTrainer import StandardTrainer
+from glassimaging.evaluation.evaluator import StandardEvaluator
 from glassimaging.evaluation.utils import segmentNifti, plotResultImage, getPerformanceMeasures
 from glassimaging.dataloading.brats18 import Brats18
 from glassimaging.dataloading.btd import BTD
@@ -56,7 +56,7 @@ class JobEval(Job):
         testset = dataset.getDataset(splits, sequences, transform=transform)
         dataloader = DataLoader(testset, batch_size=batchsize, num_workers=0, shuffle=True)
 
-        trainer = StandardTrainer.loadFromCheckpoint(os.path.join(loc_model, 'model.pt'))
+        evaluator = StandardEvaluator.loadFromCheckpoint(os.path.join(loc_model, 'model.pt'))
         self.logger.info('Dataloader has {n} images.'.format(n=len(testset)))
         all_dice = []
         all_dice_core = []
@@ -68,7 +68,7 @@ class JobEval(Job):
             segfiles = sample_batched['seg_file']
             subjects = sample_batched['subject']
             resultpaths = [os.path.join(self.tmpdir, s+'_segmented.nii.gz') for s in subjects]
-            classifications = segmentNifti(images, segfiles, trainer, patchsize, patchsize, resultpaths)
+            classifications = evaluator.segmentNifti(images, segfiles, patchsize, resultpaths)
             for i in range(0, len(subjects)):
                 seg = nib.load(segfiles[i]).get_fdata()
                 plotResultImage(dataset, resultpaths[i], self.tmpdir, subjects[i], output_type = output_type)
