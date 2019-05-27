@@ -13,6 +13,7 @@ from torch.utils.data import DataLoader
 from glassimaging.execution.jobs.job import Job
 from glassimaging.training.standardTrainer import StandardTrainer
 from glassimaging.dataloading.brats18 import Brats18
+from glassimaging.dataloading.btd import BTD
 from glassimaging.dataloading.transforms.randomcrop import RandomCrop
 from glassimaging.dataloading.transforms.totensor import ToTensor
 from glassimaging.dataloading.transforms.compose import Compose
@@ -27,7 +28,10 @@ class JobTrain(Job):
         batchsize = self.config['Batch size']
         loc = os.path.join(self.datadir, self.config["Nifti Source"])
         sequences = self.config["Sequences"] if "Sequences" in self.config else None
-        dataset = Brats18.fromFile(loc)
+        if self.config['Dataset'] == 'Brats18':
+            dataset = Brats18.fromFile(loc)
+        elif self.config['Dataset'] == 'BTD':
+            dataset = BTD.fromFile(loc)
 
         if "Splits from File" in self.config:
             dataset.setSplits(self.config["Splits from File"])

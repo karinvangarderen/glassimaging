@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 from glassimaging.training.standardTrainer import StandardTrainer
 from glassimaging.evaluation.utils import segmentNifti, plotResultImage, getPerformanceMeasures
 from glassimaging.dataloading.brats18 import Brats18
+from glassimaging.dataloading.btd import BTD
 from glassimaging.dataloading.transforms.totensor import ToTensor
 import pandas as pd
 import nibabel as nib
@@ -36,7 +37,10 @@ class JobEval(Job):
         
         ##### load datamanager
         loc = myconfig["Nifti Source"]
-        dataset = Brats18.fromFile(loc)
+        if self.config['Dataset'] == 'Brats18':
+            dataset = Brats18.fromFile(loc)
+        elif self.config['Dataset'] == 'BTD':
+            dataset = BTD.fromFile(loc)
         
         if "Splits from File" in myconfig:
             dataset.loadSplits(myconfig["Splits from File"])
