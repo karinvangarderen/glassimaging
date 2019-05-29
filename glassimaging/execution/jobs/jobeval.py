@@ -12,6 +12,7 @@ from glassimaging.evaluation.evaluator import StandardEvaluator
 from glassimaging.evaluation.utils import segmentNifti, plotResultImage, getPerformanceMeasures
 from glassimaging.dataloading.brats18 import Brats18
 from glassimaging.dataloading.btd import BTD
+from glassimaging.dataloading.hippocampus import Hippocampus
 from glassimaging.dataloading.transforms.totensor import ToTensor
 import pandas as pd
 import nibabel as nib
@@ -41,6 +42,8 @@ class JobEval(Job):
             dataset = Brats18.fromFile(loc)
         elif self.config['Dataset'] == 'BTD':
             dataset = BTD.fromFile(loc)
+        elif self.config['Dataset'] == 'Hippocampus':
+            dataset = Hippocampus.fromFile(loc)
         
         if "Splits from File" in myconfig:
             dataset.loadSplits(myconfig["Splits from File"])
