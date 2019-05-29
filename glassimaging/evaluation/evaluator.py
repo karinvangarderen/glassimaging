@@ -143,7 +143,8 @@ class StandardEvaluator:
 
     def segmentNifti(self, images, segfiles, targetsize, savepaths):
         input_array = np.stack(images)
-        output = self.segmentVolumeWithOverlap(input_array, targetsize)
+
+        output = self.segmentWholeArray(input_array, targetsize, targetsize)
 
         for i in range(0, len(savepaths)):
             ######## Load segmentation to get affine and header information
