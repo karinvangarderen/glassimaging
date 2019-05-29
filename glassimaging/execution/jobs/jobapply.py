@@ -61,7 +61,7 @@ class JobApply(Job):
 
         for i_batch, sample_batched in enumerate(dataloader):
             images = sample_batched["data"]
-            subjects = sample_batched["patient"]
+            subjects = sample_batched["subject"]
             header_sources = sample_batched["header_source"]
             t1_sources = sample_batched["t1_source"]
             resultpaths = [os.path.join(self.tmpdir, s + '_segmented.nii.gz') for s in subjects]
