@@ -115,6 +115,8 @@ class Experiment():
             return 'glassimaging.execution.jobs.jobtrain'
         elif jobtype == 'setup':
             return 'glassimaging.execution.jobs.jobsetup'
+        elif jobtype == 'apply':
+            return 'glassimaging.execution.jobs.jobapply'
         
     def getExecuteString(self, platform, names, jobscripts, configfiles, job_outputdirs):
         if platform == 'cartesius':
