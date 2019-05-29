@@ -116,7 +116,7 @@ class GenericDataset(NiftiDataset, Dataset):
     def __getitem__(self, idx):
         patientname = self.patients[idx]
 
-        (image, segmentation) = self.loadSubjectImagesWithoutSeg(patientname, self.sequences, normalized=False)
+        image = self.loadSubjectImagesWithoutSeg(patientname, self.sequences, normalized=False)
         if self.brainmask:
             brainmask = self.loadSegBinarize(self.df.loc[patientname]['brainmask'])
 
