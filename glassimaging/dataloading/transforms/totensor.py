@@ -6,8 +6,9 @@ class ToTensor(object):
     """Convert ndarrays in sample to Tensors."""
 
     def __call__(self, sample):
-        image, segmentation = sample['data'], sample['seg']
-
+        image = sample['data']
         sample['data'] = torch.from_numpy(image)
-        sample['seg'] = torch.from_numpy(segmentation)
+        if 'seg' in sample:
+            segmentation = sample['seg']
+            sample['seg'] = torch.from_numpy(segmentation)
         return sample
