@@ -63,6 +63,18 @@ class NiftiDataset:
         segmentation = self.loadSeg(self.df.loc[subject]['seg'])
         return image, segmentation
 
+    """Return the full stacked sequence of images of a subject
+
+    Useful for evaluation
+    """
+    def loadSubjectImagesWithoutSeg(self, subject, sequences, normalized=True):
+        if normalized:
+            image = [self.loadImageNormalized(self.df.loc[subject][seq]) for seq in sequences]
+        else:
+            image = [self.loadImage(self.df.loc[subject][seq]) for seq in sequences]
+        image = np.stack(image)
+        return image
+
     def createCVSplits(self, nsplits):
         self.df['split'] = -1
         split = -1
