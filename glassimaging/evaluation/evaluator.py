@@ -141,14 +141,14 @@ class StandardEvaluator:
 
         return mean_output
 
-    def segmentNifti(self, images, segfiles, targetsize, savepaths):
+    def segmentNifti(self, images, header_files, targetsize, savepaths):
         input_array = np.stack(images)
 
         output = self.segmentWholeArray(input_array, targetsize, targetsize)
 
         for i in range(0, len(savepaths)):
             ######## Load segmentation to get affine and header information
-            nifti = nib.load(segfiles[i])
+            nifti = nib.load(header_files[i])
             hdr = nifti.header.copy()
             ff = nifti.affine.copy()
             segmentation_img = nib.Nifti1Image(output[i], ff, hdr)
