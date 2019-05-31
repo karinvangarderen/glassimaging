@@ -56,7 +56,10 @@ class JobEval(Job):
         sequences = config_model["Sequences"]
 
         transform = ToTensor()
-        testset = dataset.getDataset(splits, sequences, transform=transform)
+        if 'Target' in self.config and self.config['Target'] == 'Brainmask':
+            testset = dataset.getBrainmaskDataset(splits, sequences, transform=transform)
+        else:
+            testset = dataset.getDataset(splits, sequences, transform=transform)
         dataloader = DataLoader(testset, batch_size=batchsize, num_workers=0, shuffle=True)
 
         evaluator = StandardEvaluator.loadFromCheckpoint(os.path.join(loc_model, 'model.pt'))

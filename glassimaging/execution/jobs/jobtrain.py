@@ -51,8 +51,10 @@ class JobTrain(Job):
             ToTensor()
         ])
 
-        trainset = dataset.getDataset(splits, sequences, transform=transform)
-
+        if 'Target' in self.config and self.config['Target'] == 'Brainmask':
+            trainset = dataset.getBrainmaskDataset(splits, sequences, transform=transform)
+        else:
+            trainset = dataset.getDataset(splits, sequences, transform=transform)
 
         trainset.saveListOfPatients(os.path.join(self.tmpdir, 'trainset.json'))
         self.logger.info('Generating patches with input size ' + str(imgsize) + ' and outputsize ' + str(targetsize))
@@ -60,7 +62,10 @@ class JobTrain(Job):
         n_workers = self.config['Num Workers']
         trainloader = DataLoader(trainset, batch_size=batchsize, num_workers=n_workers, shuffle=True)
         if len(testsplits) > 0:
-            testset = dataset.getDataset(testsplits, sequences, transform=transform)
+            if 'Target' in self.config and self.config['Target'] == 'Brainmask':
+                testset = dataset.getBrainmaskDataset(testsplits, sequences, transform=transform)
+            else:
+                testset = dataset.getDataset(testsplits, sequences, transform=transform)
             testloader = DataLoader(testset, batch_size=batchsize, num_workers=n_workers, shuffle=True)
         else:
             testloader = None
