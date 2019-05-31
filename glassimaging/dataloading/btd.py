@@ -181,7 +181,7 @@ class BTDBrainmaskDataset(NiftiDataset, Dataset):
     def __getitem__(self, idx):
         patientname = self.patients[idx]
 
-        (image, segmentation) = self.loadSubjectImagesWithoutSeg(patientname, self.sequences, normalized=False)
+        image = self.loadSubjectImagesWithoutSeg(patientname, self.sequences, normalized=False)
         brainmask = self.loadSegBinarize(self.df.loc[patientname]['brainmask'])
 
         for i in range(0, image.shape[0]):
