@@ -111,7 +111,7 @@ class StandardEvaluator:
             output[slice_obj] = outputpatch
         return output
 
-    def segmentVolumeWithOverlap(self, input_array, patchsize, n_overlap=4, n_out=5):
+    def segmentVolumeWithOverlap(self, input_array, patchsize, n_overlap=2, n_out=5):
         stepsize = [s / n_overlap for s in patchsize]
         padding = ((0,0), (0,0), (int(stepsize[0] * (n_overlap -1)), int(stepsize[0] * (n_overlap -1))),
                    (int(stepsize[1] * (n_overlap -1)), int(stepsize[1] * (n_overlap -1))),
@@ -134,7 +134,15 @@ class StandardEvaluator:
             inputpatch = torch.from_numpy(selected_image)
             outputpatch = self.inferWithImage(inputpatch)
             outputpatch = outputpatch.cpu().numpy()
-            output[slice_obj] += outputpatch / n_overlap
+            n_leave_out = np.floor(np.min(stepsize)/4).astype(int)
+            print(n_leave_out)
+            outputpatch[:, :, 0:n_leave_out, :, :] = 0
+            outputpatch[:, :, -n_leave_out:, :, :] = 0
+            outputpatch[:, :, :, 0:n_leave_out, :] = 0
+            outputpatch[:, :, :, -n_leave_out, :] = 0
+            outputpatch[:, :, :, :, 0:n_leave_out] = 0
+            outputpatch[:, :, :, :, -n_leave_out:] = 0
+            output[slice_obj] += outputpatch
 
         mean_output = np.argmax(output, axis=1)
         mean_output = mean_output[:, padding[2][0]:-padding[2][1], padding[3][0]:-padding[3][1], padding[4][0]:-padding[4][1]]
@@ -144,7 +152,7 @@ class StandardEvaluator:
     def segmentNifti(self, images, header_files, targetsize, savepaths):
         input_array = np.stack(images)
 
-        output = self.segmentWholeArray(input_array, targetsize, targetsize)
+        output = self.segmentVolumeWithOverlap(input_array, targetsize)
 
         for i in range(0, len(savepaths)):
             ######## Load segmentation to get affine and header information
