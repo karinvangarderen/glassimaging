@@ -106,6 +106,10 @@ class StandardEvaluator:
             inputpatch = torch.from_numpy(inputpatch)
             outputpatch = self.inferWithImage(inputpatch)
             outputpatch = outputpatch.cpu().numpy()
+            #### If the network has no padding (i.e. inputsize = output size)
+            #### you may want to crop anyway to prevent errors on the border
+            if outputpatch.shape != tuple(targetsize):
+                outputpatch = outputpatch[:, :, crop[0]:-crop[0], crop[1]:-crop[1], crop[2]:-crop[2]]
             outputpatch = np.argmax(outputpatch, axis=1)
             outputselection = np.transpose([start, end])
             slice_obj = (
@@ -138,7 +142,6 @@ class StandardEvaluator:
             outputpatch = self.inferWithImage(inputpatch)
             outputpatch = outputpatch.cpu().numpy()
             n_leave_out = np.floor(np.min(stepsize)/4).astype(int)
-            print(n_leave_out)
             outputpatch[:, :, 0:n_leave_out, :, :] = 0
             outputpatch[:, :, -n_leave_out:, :, :] = 0
             outputpatch[:, :, :, 0:n_leave_out, :] = 0
@@ -152,11 +155,13 @@ class StandardEvaluator:
 
         return mean_output
 
-    def segmentNifti(self, images, header_files, targetsize, savepaths):
+    def segmentNifti(self, images, header_files, inputsize, savepaths, crop=16):
         input_array = np.stack(images)
 
         n_classes = self.getNumClasses()
-        output = self.segmentVolumeWithOverlap(input_array, targetsize, n_out=n_classes)
+
+        targetsize = [i - crop * 2 for i in inputsize]
+        output = self.segmentWholeArray(input_array, inputsize, targetsize)
 
         for i in range(0, len(savepaths)):
             ######## Load segmentation to get affine and header information
