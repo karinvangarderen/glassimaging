@@ -72,6 +72,9 @@ class StandardEvaluator:
             output = output.detach()
         return output
 
+    def getNumClasses(self):
+        return self.net.getDesc()[1]['outputsize']
+
     def segmentWholeArray(self, input_array, inputsize, targetsize):
         outputsize = np.array(input_array.shape[2:5])
         inputsize = np.array(inputsize)
@@ -152,7 +155,8 @@ class StandardEvaluator:
     def segmentNifti(self, images, header_files, targetsize, savepaths):
         input_array = np.stack(images)
 
-        output = self.segmentVolumeWithOverlap(input_array, targetsize)
+        n_classes = self.getNumClasses()
+        output = self.segmentVolumeWithOverlap(input_array, targetsize, n_out=n_classes)
 
         for i in range(0, len(savepaths)):
             ######## Load segmentation to get affine and header information
