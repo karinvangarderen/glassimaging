@@ -75,7 +75,7 @@ class UNetMultipath(nn.Module):
         outputsize = desc['outputsize']
         k = desc['k'] if 'k' in desc else 16
         p_drop = desc['p_drop'] if 'p_drop' in desc else 0.5
-        return UNetLateFusion(outputsize=outputsize, inputsize=inputsize, k=k, p_drop=p_drop)
+        return UNetMultipath(outputsize=outputsize, inputsize=inputsize, k=k, p_drop=p_drop)
 
     def getDesc(self):
         return ['latefusion', {
