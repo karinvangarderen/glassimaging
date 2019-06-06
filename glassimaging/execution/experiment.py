@@ -117,6 +117,8 @@ class Experiment():
             return 'glassimaging.execution.jobs.jobsetup'
         elif jobtype == 'apply':
             return 'glassimaging.execution.jobs.jobapply'
+        elif jobtype == 'train_multipath':
+            return 'glassimaging.execution.jobs.jobtrain_multipath'
         
     def getExecuteString(self, platform, names, jobscripts, configfiles, job_outputdirs):
         if platform == 'cartesius':
