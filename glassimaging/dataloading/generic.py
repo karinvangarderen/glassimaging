@@ -14,7 +14,7 @@ from torch.utils.data import Dataset
 class GenericData(NiftiDataset):
 
     available_sequences = ['flair', 't1', 't1Gd', 't2']
-    SEQ_TRANSLATION = {'t1Gd': 't1gd.nii', 't2': 't2.nii', 'flair': 'flair.nii', 't1': 't1.nii.gz'}
+    SEQ_TRANSLATION = {'t1Gd': 't1gd.nii.gz', 't2': 't2.nii.gz', 'flair': 'flair.nii.gz', 't1': 't1.nii.gz'}
     """The image paths for each subject are stored at initialization
     """
     def __init__(self, df=None, brainmask=True, segmentation=True, sequences=('t1', 'flair', 't2', 't1Gd')):
