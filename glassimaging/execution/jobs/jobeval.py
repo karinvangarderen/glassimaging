@@ -53,7 +53,11 @@ class JobEval(Job):
         sourcestep = myconfig["Model Source"]
         loc_model = os.path.join(self.datadir, sourcestep)
         config_model = self.loadConfig(os.path.join(loc_model, 'config.json'))
-        sequences = config_model["Sequences"]
+
+        if "Sequences" in self.config:
+            sequences = self.config["Sequences"]
+        else:
+            sequences = config_model["Sequences"]
 
         transform = ToTensor()
         if 'Target' in self.config and self.config['Target'] == 'Brainmask':
