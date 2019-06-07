@@ -3,30 +3,28 @@ GLASSImaging
 ============
 
 
-.. image:: https://img.shields.io/pypi/v/glassimaging.svg
-        :target: https://pypi.python.org/pypi/glassimaging
-
-.. image:: https://img.shields.io/travis/karinvangarderen/glassimaging.svg
-        :target: https://travis-ci.org/karinvangarderen/glassimaging
-
-.. image:: https://readthedocs.org/projects/glassimaging/badge/?version=latest
-        :target: https://glassimaging.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-
-
-
-
 Automatic delineation of relevant structures for the analysis of GLASS imaging, using deep neural networks.
 
 
 * Free software: Apache Software License 2.0
-* Documentation: https://glassimaging.readthedocs.io.
 
 
-Features
+Using a new dataset
 --------
 
-* TODO
+1. Write a class extending glassimaging.dataloading.niftidataset.NiftiDataset
+2. Implement the importData function, which loads examples from a file into a dataframe (see examples)
+
+Defining a Job
+--------
+
+1. Extend the Job class
+2. Implement the run function which contains the tasks to run
+3. Use the self.config dictionary to define and use parameters
+
+Running jobs using SLURM
+--------
+
 
 Credits
 -------
