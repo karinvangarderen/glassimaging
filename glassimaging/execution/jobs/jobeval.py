@@ -14,6 +14,8 @@ from glassimaging.dataloading.brats18 import Brats18
 from glassimaging.dataloading.btd import BTD
 from glassimaging.dataloading.hippocampus import Hippocampus
 from glassimaging.dataloading.transforms.totensor import ToTensor
+from glassimaging.dataloading.transforms.binaryseg import BinarySegmentation
+from glassimaging.dataloading.transforms.compose import Compose
 import pandas as pd
 import nibabel as nib
 import matplotlib.pyplot as plt
@@ -59,7 +61,10 @@ class JobEval(Job):
         else:
             sequences = config_model["Sequences"]
 
-        transform = ToTensor()
+        transforms = [ToTensor()]
+        if 'Whole Tumor' in self.config and self.config["Whole Tumor"]:
+            transforms.append(BinarySegmentation())
+        transform = Compose(transforms)
         if 'Target' in self.config and self.config['Target'] == 'Brainmask':
             testset = dataset.getBrainmaskDataset(splits, sequences, transform=transform)
         else:
