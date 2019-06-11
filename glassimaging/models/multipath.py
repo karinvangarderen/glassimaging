@@ -48,17 +48,18 @@ class UNetMultipath(nn.Module):
 
     def forward(self, x):
         output = []
+
         if self.training:
             input_avail = self.getRandomAvailable()
         else:
             input_avail = self.getRandomAvailable()
             input_avail = input_avail.new_tensor(self.inputAvailable)
+        factor = self.inputsize / torch.sum(input_avail)
+        factor = factor.cuda(x.get_device()) if x.is_cuda else factor
         for i in range(0, self.inputsize):
             input_tensor = x[:, i:i + 1, :, :, :].clone()
             channel = self.unets[i](input_tensor)
             if input_avail[i]:
-                factor = self.inputsize / torch.sum(input_avail)
-                factor = factor.cuda(channel.get_device()) if channel.is_cuda else factor
                 channel = channel * factor
             else:
                 channel = channel.new_zeros(channel.size(), requires_grad=False)

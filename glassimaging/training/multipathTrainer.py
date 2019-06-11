@@ -21,7 +21,7 @@ class MultipathTrainer(StandardTrainer):
         checkpoint = torch.load(loc, map_location=MultipathTrainer.getDevice())
         net = createModel(checkpoint['model_desc'])
         net.load_state_dict(checkpoint['model_state_dict'])
-        optimizer = optim.Adam(net.parameters(), lr = 0.0001)
+        optimizer = optim.Adam(net.parameters(), lr=MultipathTrainer.lr)
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True)
         if 'scheduler_state_dict' in checkpoint:
