@@ -94,7 +94,7 @@ class JobTrainMultipath(Job):
             model_loc = [os.path.join(self.datadir, sourcesteps[i]) for i in range(0,4)]
             network_locations = [os.path.join(l, 'model.pt') for l in model_loc]
             sourceconfigs = [self.loadConfig(os.path.join(l, 'config.json')) for l in model_loc]
-            sequences = [conf["Sequences"] for conf in sourceconfigs]
+            sequences = [conf["Sequences"][0] for conf in sourceconfigs]
             self.config['Sequences'] = sequences
             trainer.loadExistingModels(network_locations)
             self.logger.info('Models loaded into paths')

@@ -130,7 +130,7 @@ class BTDDataset(NiftiDataset, Dataset):
         (image, segmentation) = self.loadSubjectImages(patientname, self.sequences, normalized=False)
         if self.brainmask:
             brainmask = self.loadSegBinarize(self.df.loc[patientname]['brainmask'])
-
+        brainmask = brainmask.astype(int)
         for i in range(0, image.shape[0]):
             img = image[i]
             maxval = np.percentile(img, 99)
