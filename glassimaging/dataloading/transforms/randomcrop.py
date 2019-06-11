@@ -13,7 +13,7 @@ class RandomCrop(object):
             self.output_size = output_size
 
     def __call__(self, sample):
-        image, segmentation = sample['data'], sample['seg']
+        image = sample['data']
 
         h, w, d = image.shape[1:]
         new_h, new_w, new_d = self.output_size
@@ -25,9 +25,10 @@ class RandomCrop(object):
         image = image[:, top: top + new_h,
                       left: left + new_w, front: front + new_d]
 
-        segmentation = segmentation[top: top + new_h,
-                left: left + new_w, front: front + new_d]
-
         sample['data'] = image
-        sample['seg'] = segmentation
+        if 'seg' in sample:
+            segmentation = sample['seg']
+            segmentation = segmentation[top: top + new_h,
+                           left: left + new_w, front: front + new_d]
+            sample['seg'] = segmentation
         return sample

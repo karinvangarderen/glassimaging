@@ -13,7 +13,7 @@ from glassimaging.models.utils import createModel
 
 
 class StandardTrainer:
-    lr = 0.00001
+    lr = 0.0001
     momentum = 0.9
 
     def __init__(self, net, optimizer, scheduler=None):
@@ -164,7 +164,7 @@ class StandardTrainer:
         checkpoint = torch.load(loc, map_location=StandardTrainer.getDevice())
         net = createModel(checkpoint['model_desc'])
         net.load_state_dict(checkpoint['model_state_dict'])
-        optimizer = optim.Adam(net.parameters(), lr = 0.0001)
+        optimizer = optim.Adam(net.parameters(), lr=StandardTrainer.lr)
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True)
         if 'scheduler_state_dict' in checkpoint:

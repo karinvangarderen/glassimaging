@@ -8,11 +8,14 @@ from glassimaging.execution.jobs.job import Job
 import sys
 import os
 from torch.utils.data import DataLoader
-from glassimaging.training.standardTrainer import StandardTrainer
+from glassimaging.evaluation.evaluator import StandardEvaluator
 from glassimaging.evaluation.utils import segmentNifti, plotResultImage, getPerformanceMeasures
 from glassimaging.dataloading.brats18 import Brats18
 from glassimaging.dataloading.btd import BTD
+from glassimaging.dataloading.hippocampus import Hippocampus
 from glassimaging.dataloading.transforms.totensor import ToTensor
+from glassimaging.dataloading.transforms.binaryseg import BinarySegmentation
+from glassimaging.dataloading.transforms.compose import Compose
 import pandas as pd
 import nibabel as nib
 import matplotlib.pyplot as plt
@@ -41,6 +44,8 @@ class JobEval(Job):
             dataset = Brats18.fromFile(loc)
         elif self.config['Dataset'] == 'BTD':
             dataset = BTD.fromFile(loc)
+        elif self.config['Dataset'] == 'Hippocampus':
+            dataset = Hippocampus.fromFile(loc)
         
         if "Splits from File" in myconfig:
             dataset.loadSplits(myconfig["Splits from File"])
@@ -50,13 +55,23 @@ class JobEval(Job):
         sourcestep = myconfig["Model Source"]
         loc_model = os.path.join(self.datadir, sourcestep)
         config_model = self.loadConfig(os.path.join(loc_model, 'config.json'))
-        sequences = config_model["Sequences"]
 
-        transform = ToTensor()
-        testset = dataset.getDataset(splits, sequences, transform=transform)
+        if "Sequences" in self.config:
+            sequences = self.config["Sequences"]
+        else:
+            sequences = config_model["Sequences"]
+
+        transforms = [ToTensor()]
+        if 'Whole Tumor' in self.config and self.config["Whole Tumor"]:
+            transforms = [BinarySegmentation()] + transforms
+        transform = Compose(transforms)
+        if 'Target' in self.config and self.config['Target'] == 'Brainmask':
+            testset = dataset.getBrainmaskDataset(splits, sequences, transform=transform)
+        else:
+            testset = dataset.getDataset(splits, sequences, transform=transform)
         dataloader = DataLoader(testset, batch_size=batchsize, num_workers=0, shuffle=True)
 
-        trainer = StandardTrainer.loadFromCheckpoint(os.path.join(loc_model, 'model.pt'))
+        evaluator = StandardEvaluator.loadFromCheckpoint(os.path.join(loc_model, 'model.pt'))
         self.logger.info('Dataloader has {n} images.'.format(n=len(testset)))
         all_dice = []
         all_dice_core = []
@@ -68,7 +83,7 @@ class JobEval(Job):
             segfiles = sample_batched['seg_file']
             subjects = sample_batched['subject']
             resultpaths = [os.path.join(self.tmpdir, s+'_segmented.nii.gz') for s in subjects]
-            classifications = segmentNifti(images, segfiles, trainer, patchsize, patchsize, resultpaths)
+            classifications = evaluator.segmentNifti(images, segfiles, patchsize, resultpaths)
             for i in range(0, len(subjects)):
                 seg = nib.load(segfiles[i]).get_fdata()
                 plotResultImage(dataset, resultpaths[i], self.tmpdir, subjects[i], output_type = output_type)

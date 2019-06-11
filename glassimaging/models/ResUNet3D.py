@@ -7,11 +7,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
-class ResUNet(nn.Module):
+class ResUNetBody(nn.Module):
 
     def __init__(self, k=16, outputsize=2, inputsize=4):
-        super(ResUNet, self).__init__()
+        super(ResUNetBody, self).__init__()
         self.outputsize = outputsize
         self.inputsize = inputsize
         self. k = k
@@ -34,10 +33,6 @@ class ResUNet(nn.Module):
         self.denseBlock2_right = DenseBlock(n=2, inputsize=k*2)
         self.UP4 = nn.ConvTranspose3d(k*2, k*1, 2, stride=2)
         self.denseBlock1_right = DenseBlock(n=2, inputsize=k*1)
-
-        self.FC = ConvBlock(k*1, k*1, 1, padding=False)
-        self.classifier = nn.Conv3d(k*1, self.outputsize, 1, padding=0)
-        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
         res = self.conv(x)
@@ -70,6 +65,23 @@ class ResUNet(nn.Module):
         skip1 = skip1
         res = torch.add(res, skip1)
         res = self.denseBlock1_right(res)
+        return res
+
+
+class ResUNet(nn.Module):
+
+    def __init__(self, k=16, outputsize=2, inputsize=4):
+        super(ResUNet, self).__init__()
+        self.outputsize = outputsize
+        self.inputsize = inputsize
+        self. k = k
+        self.body = ResUNetBody(k=k, outputsize=outputsize, inputsize=inputsize)
+        self.FC = ConvBlock(k*1, k*1, 1, padding=False)
+        self.classifier = nn.Conv3d(k*1, self.outputsize, 1, padding=0)
+        self.softmax = nn.Softmax(dim=1)
+
+    def forward(self, x):
+        res = self.body(x)
         res = self.FC(res)
         res = self.classifier(res)
         res = self.softmax(res)

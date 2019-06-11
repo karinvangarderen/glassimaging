@@ -63,6 +63,18 @@ class NiftiDataset:
         segmentation = self.loadSeg(self.df.loc[subject]['seg'])
         return image, segmentation
 
+    """Return the full stacked sequence of images of a subject
+
+    Useful for evaluation
+    """
+    def loadSubjectImagesWithoutSeg(self, subject, sequences, normalized=True):
+        if normalized:
+            image = [self.loadImageNormalized(self.df.loc[subject][seq]) for seq in sequences]
+        else:
+            image = [self.loadImage(self.df.loc[subject][seq]) for seq in sequences]
+        image = np.stack(image)
+        return image
+
     def createCVSplits(self, nsplits):
         self.df['split'] = -1
         split = -1
@@ -84,9 +96,9 @@ class NiftiDataset:
     def saveSplits(self, loc):
         splits = self.df.split.unique()
         d = [None] * len(splits)
-        for s in splits:
+        for i, s in enumerate(splits):
             patients = self.df.loc[self.df['split'] == s].index.values
-            d[s] = list(patients)
+            d[i] = list(patients)
         path = os.path.join(loc, 'splits.json')
         with open(path, 'w') as file:
             json.dump(d, file, indent=1)

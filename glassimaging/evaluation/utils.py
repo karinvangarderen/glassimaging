@@ -79,7 +79,6 @@ def segmentWholeArray(input_array, inputsize, targetsize, trainer):
         output[slice_obj] = outputpatch
     return output
 
-
 def plotResultImage(datamanager, resultpath, savepath, subject, output_type='save'):
     basefile = datamanager.getFileName(subject, 't1')
     segfile = datamanager.getFileName(subject, 'seg')
@@ -205,4 +204,16 @@ def logDataLoader(dataloader, directory):
         plt.imshow(seg[i, :, sl], cmap="gray")  # only grayscale image here
         plt.colorbar()
         plt.savefig(os.path.join(directory, 'batch_{}_input.png'.format(subj[i])))
+        plt.close()
+
+
+def plotResultImageWithoutGT(path_t1, path_result, savepath, subject, output_type='save'):
+    if output_type == 'save':
+        plotting.plot_roi(path_result, path_t1, title=str(subject))
+        plt.savefig(os.path.join(savepath, 'result_' + subject + '.png'))
+        plt.close()
+        logging.info('Subject ' + str(subject) + ' plotted with image ' + path_t1 + '.')
+    elif output_type == 'show':
+        plotting.plot_roi(path_result, path_t1, title=str(subject))
+        plt.show()
         plt.close()

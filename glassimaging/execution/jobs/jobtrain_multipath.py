@@ -7,25 +7,22 @@ Job to train a network
 
 import sys
 import os
-import platform
-import numpy as np
+
 from torch.utils.data import DataLoader
 from glassimaging.execution.jobs.job import Job
-from glassimaging.training.standardTrainer import StandardTrainer
+from glassimaging.training.multipathTrainer import MultipathTrainer
 from glassimaging.dataloading.brats18 import Brats18
 from glassimaging.dataloading.btd import BTD
 from glassimaging.dataloading.hippocampus import Hippocampus
 from glassimaging.dataloading.transforms.randomcrop import RandomCrop
 from glassimaging.dataloading.transforms.totensor import ToTensor
 from glassimaging.dataloading.transforms.compose import Compose
-from glassimaging.dataloading.transforms.binaryseg import BinarySegmentation
-
 from glassimaging.evaluation.utils import logDataLoader
 
-class JobTrain(Job):
+class JobTrainMultipath(Job):
     
-    def __init__(self, configfile, name,  tmpdir, homedir = None, uid = None):
-        super().__init__(configfile, name,  tmpdir, homedir, uid = uid)
+    def __init__(self, configfile, name,  tmpdir, homedir=None, uid=None):
+        super().__init__(configfile, name,  tmpdir, homedir, uid=uid)
 
     def getDataloader(self):
         batchsize = self.config['Batch size']
@@ -48,13 +45,10 @@ class JobTrain(Job):
         dataset.saveSplits(self.tmpdir)
         targetsize = tuple(self.config["Patch size"])
         imgsize = targetsize
-        transforms = [
+        transform = Compose([
             RandomCrop(output_size=imgsize),
             ToTensor()
-        ]
-        if 'Whole Tumor' in self.config and self.config["Whole Tumor"]:
-            transforms = [BinarySegmentation()] + transforms
-        transform = Compose(transforms)
+        ])
 
         if 'Target' in self.config and self.config['Target'] == 'Brainmask':
             trainset = dataset.getBrainmaskDataset(splits, sequences, transform=transform)
@@ -88,12 +82,27 @@ class JobTrain(Job):
         ##### Load model from source step
         sourcestep = myconfig["Model Source"]
         model_loc = os.path.join(self.datadir, sourcestep)
-        trainer = StandardTrainer.loadFromCheckpoint(os.path.join(model_loc, 'model.pt'))
+        trainer = MultipathTrainer.loadFromCheckpoint(os.path.join(model_loc, 'model.pt'))
         trainer.setLogger(self.logger)
         model_desc = trainer.getModelDesc()
         model = model_desc[0]
         self.logger.info('model loaded from ' + model_loc + '.')
+
+
+        if "Model Sources" in myconfig:
+            sourcesteps = myconfig["Model Sources"]
+            model_loc = [os.path.join(self.datadir, sourcesteps[i]) for i in range(0,4)]
+            network_locations = [os.path.join(l, 'model.pt') for l in model_loc]
+            sourceconfigs = [self.loadConfig(os.path.join(l, 'config.json')) for l in model_loc]
+            sequences = [conf["Sequences"][0] for conf in sourceconfigs]
+            self.config['Sequences'] = sequences
+            trainer.loadExistingModels(network_locations)
+            self.logger.info('Models loaded into paths')
+
         (trainloader, testloader) = self.getDataloader()
+        if myconfig['Freeze UNets']:
+            trainer.trainLastLayerOnly()
+            self.logger.info('Only training the final layers')
 
         trainer.trainWithLoader(trainloader, epochs, testloader=testloader, maxBatchesPerEpoch=maxBatchesPerEpoch)
         self.logger.info('training finished for ' + str(epochs) + ' epochs.')
@@ -111,5 +120,5 @@ if __name__ == '__main__':
     configfile = sys.argv[2]
     tmpdir = sys.argv[3]
     homedir = sys.argv[4]
-    job = JobTrain(configfile, name, tmpdir, homedir)
+    job = JobTrainMultipath(configfile, name, tmpdir, homedir)
     job.run()
