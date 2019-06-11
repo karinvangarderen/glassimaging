@@ -63,7 +63,7 @@ class JobEval(Job):
 
         transforms = [ToTensor()]
         if 'Whole Tumor' in self.config and self.config["Whole Tumor"]:
-            transforms.append(BinarySegmentation())
+            transforms = [BinarySegmentation()] + transforms
         transform = Compose(transforms)
         if 'Target' in self.config and self.config['Target'] == 'Brainmask':
             testset = dataset.getBrainmaskDataset(splits, sequences, transform=transform)
