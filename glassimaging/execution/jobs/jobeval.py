@@ -76,17 +76,18 @@ class JobEval(Job):
         all_dice = []
         all_dice_core = []
         all_dice_enhancing = []
-        results = pd.DataFrame(columns = ['sample', 'subject', 'class', 'TP', 'FP', 'FN', 'TN', 'dice'])
+        results = pd.DataFrame(columns=['sample', 'subject', 'class', 'TP', 'FP', 'FN', 'TN', 'dice'])
         for i_batch, sample_batched in enumerate(dataloader):
             ######### TODO: work with original dataset
             images = sample_batched['data']
             segfiles = sample_batched['seg_file']
             subjects = sample_batched['subject']
+            segs = sample_batched['seg']
             resultpaths = [os.path.join(self.tmpdir, s+'_segmented.nii.gz') for s in subjects]
             classifications = evaluator.segmentNifti(images, segfiles, patchsize, resultpaths)
             for i in range(0, len(subjects)):
-                seg = nib.load(segfiles[i]).get_fdata()
-                plotResultImage(dataset, resultpaths[i], self.tmpdir, subjects[i], output_type = output_type)
+                seg = segs[i]
+                plotResultImage(dataset, resultpaths[i], self.tmpdir, subjects[i], output_type=output_type)
                 for c in range(0,5):
                     truth = seg == c
                     positive = classifications[i] == c
