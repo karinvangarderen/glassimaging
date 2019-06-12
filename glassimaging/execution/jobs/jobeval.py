@@ -86,7 +86,7 @@ class JobEval(Job):
             resultpaths = [os.path.join(self.tmpdir, s+'_segmented.nii.gz') for s in subjects]
             classifications = evaluator.segmentNifti(images, segfiles, patchsize, resultpaths)
             for i in range(0, len(subjects)):
-                seg = segs[i]
+                seg = segs[i].numpy()
                 plotResultImage(dataset, resultpaths[i], self.tmpdir, subjects[i], output_type=output_type)
                 for c in range(0,5):
                     truth = seg == c
