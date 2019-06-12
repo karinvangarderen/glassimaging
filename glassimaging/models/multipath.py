@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import collections
 from glassimaging.models.ResUNet3D import ResUNetBody
 
 
@@ -31,9 +32,16 @@ class UNetMultipath(nn.Module):
 
     def loadExistingModels(self, list_of_statedicts):
         for i in range(0, len(self.unets)):
-            ## Strict is false to load only matching keys from a full UNet
             ## we need only the 'body'
-            self.unets[i].load_state_dict(list_of_statedicts[i], strict=False)
+            state_dict = list_of_statedicts[i]
+            new_state_dict = collections.OrderedDict()
+            for k, v in state_dict.items():
+                body = k[0:5]
+                if body == 'body.':
+                    name = k[5:]  # strip body.
+                    new_state_dict[name] = v
+            ## Check that we correctly selected the keys by settting strict=True
+            self.unets[i].load_state_dict(new_state_dict, strict=True)
 
     def trainLastLayerOnly(self):
         for net in self.unets:
