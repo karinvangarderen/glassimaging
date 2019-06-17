@@ -18,6 +18,8 @@ from glassimaging.dataloading.transforms.randomcrop import RandomCrop
 from glassimaging.dataloading.transforms.totensor import ToTensor
 from glassimaging.dataloading.transforms.compose import Compose
 from glassimaging.evaluation.utils import logDataLoader
+from glassimaging.dataloading.transforms.binaryseg import BinarySegmentation
+
 
 class JobTrainMultipath(Job):
     
@@ -45,10 +47,13 @@ class JobTrainMultipath(Job):
         dataset.saveSplits(self.tmpdir)
         targetsize = tuple(self.config["Patch size"])
         imgsize = targetsize
-        transform = Compose([
+        transforms = [
             RandomCrop(output_size=imgsize),
             ToTensor()
-        ])
+        ]
+        if 'Whole Tumor' in self.config and self.config["Whole Tumor"]:
+            transforms = [BinarySegmentation()] + transforms
+        transform = Compose(transforms)
 
         if 'Target' in self.config and self.config['Target'] == 'Brainmask':
             trainset = dataset.getBrainmaskDataset(splits, sequences, transform=transform)
