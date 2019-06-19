@@ -8,6 +8,7 @@ Job to setup a network
 
 import sys
 import os
+import argparse
 from glassimaging.execution.jobs.job import Job
 from glassimaging.training.standardTrainer import StandardTrainer
 
@@ -30,9 +31,15 @@ class JobSetup(Job):
         self.tearDown()
 
 if __name__ == '__main__':
-    name = sys.argv[1]
-    configfile = sys.argv[2]
-    tmpdir = sys.argv[3]
-    homedir = sys.argv[4]
-    job = JobSetup(configfile, name, tmpdir, homedir)
+    parser = argparse.ArgumentParser(description='Run a job.')
+    parser.add_argument('name', type=str, nargs='1',
+                        help='a name to call your job by.')
+    parser.add_argument('configfile', type=str, nargs='1',
+                        help='path to a json config file.')
+    parser.add_argument('tmpdir', type=str, nargs='1',
+                        help='directory for the output.')
+    parser.add_argument('--h', type=str, nargs='1',
+                        help='additional directory to write logs to.')
+    args = parser.parse_args()
+    job = JobSetup(args.configfile, args.name, args.tmpdir, args.h)
     job.run()

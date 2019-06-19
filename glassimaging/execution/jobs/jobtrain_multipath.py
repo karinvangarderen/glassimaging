@@ -7,7 +7,7 @@ Job to train a network
 
 import sys
 import os
-
+import argparse
 from torch.utils.data import DataLoader
 from glassimaging.execution.jobs.job import Job
 from glassimaging.training.multipathTrainer import MultipathTrainer
@@ -121,9 +121,16 @@ class JobTrainMultipath(Job):
         
 
 if __name__ == '__main__':
-    name = sys.argv[1]
-    configfile = sys.argv[2]
-    tmpdir = sys.argv[3]
-    homedir = sys.argv[4]
-    job = JobTrainMultipath(configfile, name, tmpdir, homedir)
+    args = self.parse()
+    parser = argparse.ArgumentParser(description='Run a job.')
+    parser.add_argument('name', type=str, nargs='1',
+                        help='a name to call your job by.')
+    parser.add_argument('configfile', type=str, nargs='1',
+                        help='path to a json config file.')
+    parser.add_argument('tmpdir', type=str, nargs='1',
+                        help='directory for the output.')
+    parser.add_argument('--h', type=str, nargs='1',
+                        help='additional directory to write logs to.')
+    args = parser.parse_args()
+    job = JobTrainMultipath(args.configfile, args.name, args.tmpdir, args.h)
     job.run()

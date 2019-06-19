@@ -83,8 +83,4 @@ class Job():
     
     def run(self):
         ### Depending on the job type in configfile, do something
-        raise NotImplementedError        
-
-
-    
-    
+        raise NotImplementedError
