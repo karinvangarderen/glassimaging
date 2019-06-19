@@ -20,8 +20,6 @@ class TestTorchnet(unittest.TestCase):
     def testLoadModels(self):
         basemodel = ResUNet(inputsize=1, outputsize=2, k=4)
         state_dict = basemodel.state_dict()
-        for k in state_dict:
-            print(k)
         net = UNetMultipath(inputsize=4, outputsize=2, k=4)
         list_of_dicts = [state_dict] * 4
         net.loadExistingModels(list_of_dicts)

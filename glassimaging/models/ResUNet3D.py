@@ -26,13 +26,13 @@ class ResUNetBody(nn.Module):
         self.TD4 = TD(inputsize=k*4, outputsize=k*4)
         self.denseBlockmid = DenseBlock(n=2, inputsize=k*4)
         self.UP1 = nn.ConvTranspose3d(k*4, k*4, 2, stride=2)
-        self.denseBlock4_right = DenseBlock(n=2, inputsize=k*4)
-        self.UP2 = nn.ConvTranspose3d(k*4, k*4, 2, stride=2)
-        self.denseBlock3_right = DenseBlock(n=2, inputsize=k*4)
-        self.UP3 = nn.ConvTranspose3d(k*4, k*2, 2, stride=2)
-        self.denseBlock2_right = DenseBlock(n=2, inputsize=k*2)
-        self.UP4 = nn.ConvTranspose3d(k*2, k*1, 2, stride=2)
-        self.denseBlock1_right = DenseBlock(n=2, inputsize=k*1)
+        self.denseBlock4_right = DenseBlock(n=2, inputsize=k*8)
+        self.UP2 = nn.ConvTranspose3d(k*8, k*4, 2, stride=2)
+        self.denseBlock3_right = DenseBlock(n=2, inputsize=k*8)
+        self.UP3 = nn.ConvTranspose3d(k*8, k*2, 2, stride=2)
+        self.denseBlock2_right = DenseBlock(n=2, inputsize=k*4)
+        self.UP4 = nn.ConvTranspose3d(k*4, k*1, 2, stride=2)
+        self.denseBlock1_right = DenseBlock(n=2, inputsize=k*2)
 
     def forward(self, x):
         res = self.conv(x)
@@ -51,21 +51,23 @@ class ResUNetBody(nn.Module):
         res = self.denseBlockmid(res)
         res = self.UP1(res)
         skip4 = skip4
-        res = torch.add(res, skip4)
+        res = torch.cat([res, skip4], dim=1)
         res = self.denseBlock4_right(res)
         res = self.UP2(res)
         skip3 = skip3
-        res = torch.add(res, skip3)
+        res = torch.cat([res, skip3], dim=1)
         res = self.denseBlock3_right(res)
         res = self.UP3(res)
         skip2 = skip2
-        res = torch.add(res, skip2)
+        res = torch.cat([res, skip2], dim=1)
         res = self.denseBlock2_right(res)
         res = self.UP4(res)
         skip1 = skip1
-        res = torch.add(res, skip1)
+        res = torch.cat([res, skip1], dim=1)
         res = self.denseBlock1_right(res)
         return res
+
+
 
 
 class ResUNet(nn.Module):
