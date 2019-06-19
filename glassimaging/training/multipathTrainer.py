@@ -44,7 +44,7 @@ class MultipathTrainer(StandardTrainer):
         else:
             self.net.trainLastLayerOnly()
 
-    def trainWithLoader(self, torchloader, epochs, testloader=None, maxBatchesPerEpoch=None, testinterval=5, p_drop_interval=50):
+    def trainWithLoader(self, torchloader, epochs, testloader=None, maxBatchesPerEpoch=None, testinterval=5, p_drop_interval=10):
         self.logger.info('Using cuda version {v}.'.format(v=torch.version.cuda))
         for e in range(0, epochs):
             self.logger.info('Epoch {e} started training.'.format(e=e))

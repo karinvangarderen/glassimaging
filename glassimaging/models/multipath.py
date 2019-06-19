@@ -15,6 +15,7 @@ class UNetMultipath(nn.Module):
             [ResUNetBody(inputsize=1, outputsize=outputsize, k=k) for _ in range(0, inputsize)])
         self.p_drop = p_drop
         self.fullyConnected = nn.Conv3d(inputsize * k, k * 4, 1, padding=0)
+        self.fullyConnected2 = nn.Conv3d(k * 4, k * 4, 1, padding=0)
         self.votingLayer = nn.Conv3d(k * 4, outputsize, 1, padding=0)
         self.softmax = nn.Softmax(dim=1)
         self.inputAvailable = [True] * inputsize
@@ -74,6 +75,7 @@ class UNetMultipath(nn.Module):
             output.append(channel)
         output = torch.cat(output, dim=1)
         res = self.fullyConnected(output)
+        res = self.fullyConnected2(res)
         res = self.votingLayer(res)
         res = self.softmax(res)
         return res
