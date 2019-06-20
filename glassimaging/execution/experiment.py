@@ -129,7 +129,7 @@ class Experiment():
     def getExecuteStringCartesius(self, names, jobscripts, configfiles, outputdirs):
         string = ''
         for n in names:
-            string = string + 'python3 -m {script} {name} {config} $TMPDIR -h {outputdir} \n'.format(\
+            string = string + 'python3 -m {script} {name} {config} $TMPDIR --log {outputdir} \n'.format(\
                                                         script = jobscripts[n],\
                                                         name = n,\
                                                         config = configfiles[n],\
@@ -142,7 +142,7 @@ class Experiment():
     def getExecuteStringGPUCluster(self, names, jobscripts, configfiles, outputdirs):
         string = ''
         for n in names:
-            string = string + 'OMP_NUM_THREADS=1 python3 -m {script} {name} {config} $MY_TMP_DIR -h {outputdir} \n'.format(\
+            string = string + 'OMP_NUM_THREADS=1 python3 -m {script} {name} {config} $MY_TMP_DIR --log {outputdir} \n'.format(\
                                                         script = jobscripts[n],\
                                                         name = n,\
                                                         config = configfiles[n],\

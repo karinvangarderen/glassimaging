@@ -38,7 +38,7 @@ if __name__ == '__main__':
                         help='path to a json config file.')
     parser.add_argument('tmpdir', nargs=1,
                         help='directory for the output.')
-    parser.add_argument('--h', nargs=1,
+    parser.add_argument('--log', nargs=1,
                         help='additional directory to write logs to.')
     args = parser.parse_args()
     job = JobSetup(args.configfile, args.name, args.tmpdir, args.h)
