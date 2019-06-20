@@ -122,13 +122,13 @@ class JobTrainMultipath(Job):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run a job.')
-    parser.add_argument('name', nargs='1',
+    parser.add_argument('name', nargs=1,
                         help='a name to call your job by.')
-    parser.add_argument('configfile', nargs='1',
+    parser.add_argument('configfile', nargs=1,
                         help='path to a json config file.')
-    parser.add_argument('tmpdir', nargs='1',
+    parser.add_argument('tmpdir', nargs=1,
                         help='directory for the output.')
-    parser.add_argument('--h', nargs='1',
+    parser.add_argument('--h', nargs=1,
                         help='additional directory to write logs to.')
     args = parser.parse_args()
     job = JobTrainMultipath(args.configfile, args.name, args.tmpdir, args.h)
