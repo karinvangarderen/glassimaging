@@ -15,7 +15,6 @@ class TestTorchnet(unittest.TestCase):
         inputimage = torch.randn(1,4,*inputshape)
         output = net(inputimage).detach().numpy()
         outputshape = list(output.shape[2:5])
-        print(outputshape)
 
     def testLoadModels(self):
         basemodel = ResUNet(inputsize=1, outputsize=2, k=4)
@@ -26,4 +25,10 @@ class TestTorchnet(unittest.TestCase):
         inputshape = [64,64,64]
         inputimage = torch.randn(1,4,*inputshape)
         output = net(inputimage).detach().numpy()
+
+    def testUNet(self):
+        basemodel = ResUNet(inputsize=1, outputsize=2, k=4)
+        inputshape = [64,64,64]
+        inputimage = torch.randn(1,1,*inputshape)
+        output = basemodel(inputimage).detach().numpy()
 

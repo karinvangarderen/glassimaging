@@ -78,8 +78,8 @@ class ResUNet(nn.Module):
         self.inputsize = inputsize
         self. k = k
         self.body = ResUNetBody(k=k, outputsize=outputsize, inputsize=inputsize)
-        self.FC = ConvBlock(k*1, k*1, 1, padding=False)
-        self.classifier = nn.Conv3d(k*1, self.outputsize, 1, padding=0)
+        self.FC = ConvBlock(k*2, k*2, 1, padding=False)
+        self.classifier = nn.Conv3d(k*2, self.outputsize, 1, padding=0)
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
