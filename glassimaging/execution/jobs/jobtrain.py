@@ -115,5 +115,5 @@ if __name__ == '__main__':
     parser.add_argument('--log', nargs=1,
                         help='additional directory to write logs to.')
     args = parser.parse_args()
-    job = JobTrain(args.configfile, args.name, args.tmpdir, args.h)
+    job = JobTrain(args.configfile, args.name, args.tmpdir, args.log)
     job.run()
