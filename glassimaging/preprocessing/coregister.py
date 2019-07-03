@@ -17,7 +17,7 @@ def create_network_egd():
     link_t2_bet = source_t2.output >> bet_node.inputs['T2_image']
 
     limit = fastr.core.resourcelimit.ResourceLimit(memory='3G')
-    node_resample = network.create_node('custom/resample:0.1', tool_version='0.1', id='resample', resource=limit)
+    node_resample = network.create_node('custom/resample:0.1', tool_version='0.1', id='resample', resources=limit)
     link_img_resample = source_t1.output >> node_resample.inputs['image']
     link_mask_resample = bet_node.outputs['mask_image'] >> node_resample.inputs['mask']
     sink_resample = network.create_sink('NiftiImageFileCompressed', id='resampled_t1')
