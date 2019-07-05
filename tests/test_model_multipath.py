@@ -1,13 +1,12 @@
 import torch
 import unittest
 import numpy as np
-from glassimaging.models.multipath import UNetMultipath
+from glassimaging.models.multipath import UNetMultipath, UNetSharedRep
 from glassimaging.models.ResUNet3D import ResUNet
 
 
 class TestTorchnet(unittest.TestCase):
 
-    # @unittest.skip("demonstrating skipping")
     def testRunModel(self):
         net = UNetMultipath(inputsize=4, outputsize=2, k=4)
         net.eval()
@@ -32,3 +31,10 @@ class TestTorchnet(unittest.TestCase):
         inputimage = torch.randn(1,1,*inputshape)
         output = basemodel(inputimage).detach().numpy()
 
+    def testRunModel(self):
+        net = UNetSharedRep(inputsize=4, outputsize=2, k=4)
+        net.eval()
+        inputshape = [64,64,64]
+        inputimage = torch.randn(1,4,*inputshape)
+        output = net(inputimage).detach().numpy()
+        outputshape = list(output.shape[2:5])
