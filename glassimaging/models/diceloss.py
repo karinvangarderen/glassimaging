@@ -15,6 +15,7 @@ class DiceLoss(nn.Module):
         we = self.weights.cuda(x.get_device()) if x.is_cuda else self.weights
         loss = 0
         y_one_hot = torch.FloatTensor(y.shape[0], len(we), y.shape[1], y.shape[2], y.shape[3])
+        y_one_hot = y_one_hot.cuda(x.get_device()) if x.is_cuda else y_one_hot
         y_one_hot.requires_grad = False
         for i, w in enumerate(we):
             x_i = x[:, i]
