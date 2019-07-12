@@ -42,7 +42,7 @@ class TestTorchnet(unittest.TestCase):
 
     def testDiceLoss(self):
         inputimage = torch.randn(1, 5, 20, 20, 20)
-        outputimage = torch.randn(1, 5, 20, 20, 20)
+        outputimage = torch.randn(1, 20, 20, 20)
         inputimage.requires_grad = True
         criterion = DiceLoss()
         loss = criterion(inputimage, outputimage)
