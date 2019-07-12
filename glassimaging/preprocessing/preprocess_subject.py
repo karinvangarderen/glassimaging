@@ -48,4 +48,4 @@ if __name__ == '__main__':
     parser.add_argument('path', help='path of file containing found scans.')
 
     args = parser.parse_args()
-    process_experiment(args.resultpath)
+    process_experiment(args.xnathost, args.subject, args.path)
