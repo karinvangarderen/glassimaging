@@ -10,6 +10,7 @@ import sys
 from datetime import datetime as dt
 import os
 from glassimaging.models.utils import createModel
+from glassimaging.models.diceloss import DiceLoss
 
 
 class StandardTrainer:
@@ -31,7 +32,7 @@ class StandardTrainer:
             self.logger.info('Number of devices being used: {n}'.format(n=torch.cuda.device_count()))
             self.net = self.net.to(self.device)
         torch.backends.cudnn.benchmark = True
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = DiceLoss()
         self.optimizer = optimizer
         for state in self.optimizer.state.values():
             for k, v in state.items():

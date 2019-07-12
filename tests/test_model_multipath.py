@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 from glassimaging.models.multipath import UNetMultipath, UNetSharedRep
 from glassimaging.models.ResUNet3D import ResUNet
+from glassimaging.models.diceloss import DiceLoss
 
 
 class TestTorchnet(unittest.TestCase):
@@ -38,3 +39,12 @@ class TestTorchnet(unittest.TestCase):
         inputimage = torch.randn(1,4,*inputshape)
         output = net(inputimage).detach().numpy()
         outputshape = list(output.shape[2:5])
+
+    def testDiceLoss(self):
+        inputimage = torch.randn(1, 5, 20, 20, 20)
+        outputimage = torch.randn(1, 5, 20, 20, 20)
+        inputimage.requires_grad = True
+        criterion = DiceLoss()
+        loss = criterion(inputimage, outputimage)
+        loss.backward()
+        # Just checking that the autograd engine throws no errors
