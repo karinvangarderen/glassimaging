@@ -41,10 +41,16 @@ class TestTorchnet(unittest.TestCase):
         outputshape = list(output.shape[2:5])
 
     def testDiceLoss(self):
-        inputimage = torch.randn(1, 5, 20, 20, 20)
-        outputimage = torch.randn(1, 20, 20, 20)
+        inputimage = torch.zeros(1, 5, 20, 20, 20)
+        outputimage = torch.zeros(1, 20, 20, 20)
+        outputimage[:,:,:,0:10] = 1
+        outputimage[:,:,:,10:20] = 0
+        inputimage[:,0,:,:,10:20] = 1
+        inputimage[:,1,:,:,0:10] = 1
         inputimage.requires_grad = True
         criterion = DiceLoss()
         loss = criterion(inputimage, outputimage)
         loss.backward()
         # Just checking that the autograd engine throws no errors
+
+

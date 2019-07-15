@@ -14,8 +14,12 @@ class DiceLoss(nn.Module):
         eps = self.epsilon.cuda(x.get_device()) if x.is_cuda else self.epsilon
         we = self.weights.cuda(x.get_device()) if x.is_cuda else self.weights
         loss = 0
-        y_one_hot = torch.FloatTensor(y.shape[0], len(we), y.shape[1], y.shape[2], y.shape[3])
+        y = y.long()
+        y = y.unsqueeze(1)
+        y_one_hot = torch.LongTensor(y.shape[0], len(we), y.shape[2], y.shape[3], y.shape[4]).zero_()
         y_one_hot = y_one_hot.cuda(x.get_device()) if x.is_cuda else y_one_hot
+        y_one_hot = y_one_hot.scatter(1, y.data, 1)
+        y_one_hot = y_one_hot.float()
         y_one_hot.requires_grad = False
         for i, w in enumerate(we):
             x_i = x[:, i]
@@ -23,9 +27,7 @@ class DiceLoss(nn.Module):
             intersection = torch.sum(torch.mul(x_i, y_i))
             union = torch.add(torch.sum(x_i), torch.sum(y_i))
             union = torch.add(union, eps)
-
-            loss = loss - torch.mul(torch.div(intersection, union), w)
-        loss = torch.mul(loss, 2)
-        loss = torch.div(loss, len(we))
+            loss = loss - torch.mul(torch.div(intersection * 2, union), w)
+        loss = torch.div(loss, torch.sum(we))
         return loss
 
