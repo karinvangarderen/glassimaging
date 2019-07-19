@@ -3,11 +3,11 @@ import torch
 
 class DiceLoss(nn.Module):
 
-    def __init__(self, n_classes=5, weights=(0.1,1,1,0,1)):
+    def __init__(self, weights=(0.1,1,1,0,1)):
         super(DiceLoss, self).__init__()
         self.weights = torch.Tensor(list(weights))
         self.weights.requires_grad = False
-        self.epsilon = torch.Tensor([0.00001])
+        self.epsilon = torch.Tensor([1])
         self.epsilon.requires_grad = False
 
     def forward(self, x, y):
@@ -25,6 +25,7 @@ class DiceLoss(nn.Module):
             x_i = x[:, i]
             y_i = y_one_hot[:, i]
             intersection = torch.sum(torch.mul(x_i, y_i))
+            intersection = torch.add(intersection, eps)
             union = torch.add(torch.sum(x_i), torch.sum(y_i))
             union = torch.add(union, eps)
             loss = loss - torch.mul(torch.div(intersection * 2, union), w)
