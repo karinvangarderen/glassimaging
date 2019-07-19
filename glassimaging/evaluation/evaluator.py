@@ -73,7 +73,10 @@ class StandardEvaluator:
         return output
 
     def getNumClasses(self):
-        return self.net.getDesc()[1]['outputsize']
+        if self.parallel:
+            return self.net.module.getDesc()[1]['outputsize']
+        else:
+            return self.net.getDesc()[1]['outputsize']
 
     def segmentWholeArray(self, input_array, inputsize, targetsize):
         outputsize = np.array(input_array.shape[2:5])

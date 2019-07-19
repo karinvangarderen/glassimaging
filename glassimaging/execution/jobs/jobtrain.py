@@ -7,6 +7,7 @@ Job to train a network
 
 import os
 import argparse
+from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader
 from glassimaging.execution.jobs.job import Job
 from glassimaging.training.standardTrainer import StandardTrainer
@@ -17,6 +18,7 @@ from glassimaging.dataloading.transforms.randomcrop import RandomCrop
 from glassimaging.dataloading.transforms.totensor import ToTensor
 from glassimaging.dataloading.transforms.compose import Compose
 from glassimaging.dataloading.transforms.binaryseg import BinarySegmentation
+from glassimaging.models.diceloss import DiceLoss
 
 from glassimaging.evaluation.utils import logDataLoader
 
@@ -91,6 +93,17 @@ class JobTrain(Job):
         model_desc = trainer.getModelDesc()
         model = model_desc[0]
         self.logger.info('model loaded from ' + model_loc + '.')
+
+        ### set loss function
+        if 'Loss' in myconfig:
+            if myconfig['Loss'] == 'dice':
+                if 'loss_weights' in myconfig:
+                    trainer.setLossFunction(DiceLoss(weights=tuple(myconfig['loss_weights'])))
+                else:
+                    trainer.setLossFunction(DiceLoss())
+            elif myconfig['Loss'] == 'crossentropy':
+                trainer.setLossFunction(CrossEntropyLoss())
+
         (trainloader, testloader) = self.getDataloader()
 
         trainer.trainWithLoader(trainloader, epochs, testloader=testloader, maxBatchesPerEpoch=maxBatchesPerEpoch)
