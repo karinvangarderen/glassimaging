@@ -34,7 +34,8 @@ def create_network_egd():
     return network
 
 def create_coregister_transform(network, source_image, source_baseline, source_parameters, name, transform_image=None):
-    coregister = network.create_node('elastix/Elastix:4.8', tool_version='0.2', id='coregister_{}'.format(name))
+    limit = fastr.core.resourcelimit.ResourceLimit(memory='3G')
+    coregister = network.create_node('elastix/Elastix:4.8', tool_version='0.2', id='coregister_{}'.format(name), resources=limit)
     sink_transform = network.create_sink('ElastixTransformFile', id='transform_file_{}'.format(name))
     link_transform_sink = coregister.outputs['transform'] >> sink_transform.input
     link_parameters_registration = source_parameters.output >> coregister.inputs['parameters']
