@@ -38,7 +38,7 @@ class StandardTrainer:
                 if isinstance(v, torch.Tensor):
                     state[k] = v.to(self.device)
         if scheduler is None:
-            self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, verbose=True)
+            self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, verbose=True, patience=3)
         else:
             self.scheduler = scheduler
         self.batchLog = pd.DataFrame(columns=['Epoch', 'DateTime', 'LR', 'Momentum', 'Loss', 'Train or Test'])
@@ -58,7 +58,7 @@ class StandardTrainer:
     def initFromDesc(desc):
         net = createModel(desc)
         optimizer = optim.Adam(net.parameters(), lr=StandardTrainer.lr)
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=3)
         return StandardTrainer(net, optimizer, scheduler=scheduler)
 
     def saveModel(self, loc):
@@ -170,7 +170,7 @@ class StandardTrainer:
         net.load_state_dict(checkpoint['model_state_dict'])
         optimizer = optim.Adam(net.parameters(), lr=StandardTrainer.lr)
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True)
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=3)
         if 'scheduler_state_dict' in checkpoint:
             scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
         return StandardTrainer(net, optimizer, scheduler)
