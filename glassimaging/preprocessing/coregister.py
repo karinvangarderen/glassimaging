@@ -9,7 +9,7 @@ def create_network_egd():
     source_t1Gd = network.create_source('NiftiImageFileCompressed', id='T1GD')
     source_flair = network.create_source('NiftiImageFileCompressed', id='FLAIR')
 
-    limit = fastr.core.resourcelimit.ResourceLimit(memory='3G')
+    limit = fastr.core.resourcelimit.ResourceLimit(memory='4G')
     bet_node = network.create_node('fsl/Bet:5.0.9', tool_version='0.2', id='bet', resources=limit)
     bet_constant_eye = [True] >> bet_node.inputs['eye_cleanup']
     bet_constant_robust = [True] >> bet_node.inputs['robust_estimation']
@@ -34,7 +34,7 @@ def create_network_egd():
     return network
 
 def create_coregister_transform(network, source_image, source_baseline, source_parameters, name, transform_image=None):
-    limit = fastr.core.resourcelimit.ResourceLimit(memory='3G')
+    limit = fastr.core.resourcelimit.ResourceLimit(memory='4G')
     coregister = network.create_node('elastix/Elastix:4.8', tool_version='0.2', id='coregister_{}'.format(name), resources=limit)
     sink_transform = network.create_sink('ElastixTransformFile', id='transform_file_{}'.format(name))
     link_transform_sink = coregister.outputs['transform'] >> sink_transform.input
