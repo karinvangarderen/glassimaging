@@ -9,14 +9,14 @@ def create_network_egd():
     source_t1Gd = network.create_source('NiftiImageFileCompressed', id='T1GD')
     source_flair = network.create_source('NiftiImageFileCompressed', id='FLAIR')
 
-    bet_node = network.create_node('fsl/Bet:5.0.9', tool_version='0.2', id='bet')
+    limit = fastr.core.resourcelimit.ResourceLimit(memory='3G')
+    bet_node = network.create_node('fsl/Bet:5.0.9', tool_version='0.2', id='bet', resources=limit)
     bet_constant_eye = [True] >> bet_node.inputs['eye_cleanup']
     bet_constant_robust = [True] >> bet_node.inputs['robust_estimation']
 
     link_t1_bet = source_t1.output >> bet_node.inputs['image']
     link_t2_bet = source_t2.output >> bet_node.inputs['T2_image']
 
-    limit = fastr.core.resourcelimit.ResourceLimit(memory='3G')
     node_resample = network.create_node('custom/resample:0.1', tool_version='0.1', id='resample', resources=limit)
     link_img_resample = source_t1.output >> node_resample.inputs['image']
     link_mask_resample = bet_node.outputs['mask_image'] >> node_resample.inputs['mask']
