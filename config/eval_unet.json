@@ -9,5 +9,6 @@
 				],
 				"Batch size": 1,
 				"Output type": "save",
-				"Only first": true
+				"Only first": true,
+                "Dataset": "Brats18"
 			}

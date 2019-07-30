@@ -16,6 +16,14 @@ class JobSetup(Job):
     
     def __init__(self, configfile, name,  tmpdir, homedir = None, uid = None):
         super().__init__(configfile, name,  tmpdir, homedir, uid = uid)
+
+    def getSchema(self):
+        return {
+            "type": "object",
+            "properties": {
+                "Model": {"type": "array"},
+            }
+        }
         
     def run(self):
         ##### Create identifiers

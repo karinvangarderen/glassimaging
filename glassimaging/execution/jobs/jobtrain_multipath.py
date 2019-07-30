@@ -28,6 +28,33 @@ class JobTrainMultipath(Job):
     def __init__(self, configfile, name,  tmpdir, homedir=None, uid=None):
         super().__init__(configfile, name,  tmpdir, homedir, uid=uid)
 
+    def getSchema(self):
+        return {
+            "type": "object",
+            "properties": {
+                "Nifti Source": {"type": "string"},
+                "Splits": {"type": "array"},
+                "Model Source": {"type": "string"},
+                "Patch size": {"type": "array"},
+                "Batch size": {"type": "integer"},
+                "Dataset": {"type": "string"},
+                "Epochs": {"type": "integer"},
+                "Num Workers": {"type": "integer"},
+                "Loss": {"type": "string",
+                         "enum": ["crossentropy", "dice"]},
+                "Testsplits": {"type": "array"},
+                "Target": {"type": "string",
+                           "enum": ["Brainmask"]},
+                "Whole Tumor": {"type": "boolean"},
+                "Splits from File": {"type": "string"},
+                "Sequences": {"type": "array"},
+                "Model Sources": {"type": "array"},
+                "Freeze UNets": {"type": "boolean"}
+            },
+            "required": ["Nifti Source", "Patch size", "Batch size", "Dataset", "Epochs", "Num Workers",
+                         "Testsplits", "Splits", "Freeze UNets"]
+        }
+
     def getDataloader(self):
         batchsize = self.config['Batch size']
         loc = os.path.join(self.datadir, self.config["Nifti Source"])

@@ -22,6 +22,22 @@ class JobApply(Job):
     def __init__(self, configfile, name, tmpdir, homedir=None, uid=None):
         super().__init__(configfile, name, tmpdir, homedir, uid=uid)
 
+    def getSchema(self):
+        return {
+            "type": "object",
+            "properties": {
+                "Nifti Source": {"type": "string"},
+                "Splits": {"type": "array"},
+                "Model Source": {"type": "string"},
+                "Patch size": {"type": "array"},
+                "Batch size": {"type": "integer"},
+                "Output type": {"type": "string"},
+                "Dataset": {"type": "string"},
+                "Only first": {"type": "boolean"},
+            },
+            "required": ["Nifti Source", "Patch size", "Batch size", "Dataset"]
+        }
+
     def run(self):
         ##### Create identifiers
         myconfig = self.config

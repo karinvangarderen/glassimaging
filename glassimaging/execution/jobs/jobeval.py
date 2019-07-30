@@ -18,14 +18,38 @@ from glassimaging.dataloading.transforms.totensor import ToTensor
 from glassimaging.dataloading.transforms.binaryseg import BinarySegmentation
 from glassimaging.dataloading.transforms.compose import Compose
 import pandas as pd
-import nibabel as nib
 import matplotlib.pyplot as plt
 
 class JobEval(Job):
     
     def __init__(self, configfile, name,  tmpdir, homedir = None, uid = None):
         super().__init__(configfile, name,  tmpdir, homedir, uid = uid)
-        
+
+
+    def getSchema(self):
+        return {
+            "type": "object",
+            "properties": {
+                "Nifti Source": {"type": "string"},
+                "Splits": {"type": "array"},
+                "Model Source": {"type": "string"},
+                "Patch size": {"type": "array"},
+                "Batch size": {"type": "integer"},
+                "Output type": {"type": "string"},
+                "Dataset": {"type": "string"},
+                "Only first": {"type": "boolean"},
+                "Epochs": {"type": "integer"},
+                "Loss": {"type": "string",
+                         "enum": ["crossentropy", "dice"]},
+                "Target": {"type": "string",
+                           "enum": ["Brainmask"]},
+                "Whole Tumor": {"type": "boolean"},
+                "Splits from File": {"type": "string"},
+                "Sequences": {"type": "array"},
+            },
+            "required": ["Nifti Source", "Patch size", "Batch size", "Dataset", "Splits"]
+        }
+
     def run(self):
         ##### Create identifiers
         myconfig = self.config

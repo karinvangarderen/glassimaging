@@ -13,6 +13,7 @@ import subprocess
 import torch
 import numpy as np
 import random
+from jsonschema import validate
 
 class Job():
     
@@ -50,6 +51,7 @@ class Job():
         gitlabel = self.getGitLabel()
         self.logger.info('Current git commit: {label}'.format(label = gitlabel))
         self.config = self.loadConfig(configfile)
+        validate(instance=self.config, schema=self.getSchema())
         self.saveConfig(os.path.join(self.tmpdir, 'config.json'))
         if homedir != None:
             self.saveConfig(os.path.join(self.homedir, 'config.json'))
@@ -83,4 +85,7 @@ class Job():
     
     def run(self):
         ### Depending on the job type in configfile, do something
+        raise NotImplementedError
+
+    def getSchema(self):
         raise NotImplementedError
