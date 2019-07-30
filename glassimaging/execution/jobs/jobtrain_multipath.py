@@ -19,6 +19,8 @@ from glassimaging.dataloading.transforms.totensor import ToTensor
 from glassimaging.dataloading.transforms.compose import Compose
 from glassimaging.evaluation.utils import logDataLoader
 from glassimaging.dataloading.transforms.binaryseg import BinarySegmentation
+from glassimaging.models.diceloss import DiceLoss
+from torch.nn import CrossEntropyLoss
 
 
 class JobTrainMultipath(Job):
@@ -93,6 +95,15 @@ class JobTrainMultipath(Job):
         model = model_desc[0]
         self.logger.info('model loaded from ' + model_loc + '.')
 
+        ### set loss function
+        if 'Loss' in myconfig:
+            if myconfig['Loss'] == 'dice':
+                if 'loss_weights' in myconfig:
+                    trainer.setLossFunction(DiceLoss(weights=tuple(myconfig['loss_weights'])))
+                else:
+                    trainer.setLossFunction(DiceLoss())
+            elif myconfig['Loss'] == 'crossentropy':
+                trainer.setLossFunction(CrossEntropyLoss())
 
         if "Model Sources" in myconfig:
             sourcesteps = myconfig["Model Sources"]

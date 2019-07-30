@@ -46,6 +46,10 @@ class StandardTrainer:
     def setLogger(self, logger):
         self.logger = logger
 
+
+    def setLossFunction(self, function):
+        self.criterion = function
+
     @staticmethod
     def getDevice():
        return torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
