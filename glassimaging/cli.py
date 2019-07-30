@@ -3,16 +3,41 @@
 """Console script for glassimaging."""
 import sys
 import click
+from glassimaging.execution.experiment import Experiment
+from glassimaging.execution.utils import runJob
 
+@click.group()
+def cli():
+    return 0
 
-@click.command()
-def main(args=None):
+@cli.command()
+@click.option('-c', '--configfile', 'configfile', required=True, type=str)
+@click.option('-n', '--name', 'name', required=True)
+@click.option('-o', '--outputdir', 'outputdir', required=True)
+def experiment(configfile, name, outputdir):
     """Console script for glassimaging."""
-    click.echo("Replace this message by putting your code into "
-               "glassimaging.cli.main")
-    click.echo("See click documentation at http://click.pocoo.org/")
+    try:
+        with open('platform.ini', 'r') as f:
+            platform = f.readline()
+    except:
+        platform = 'unknown'
+    if 'bigr-nzxt-7' in platform:
+        platform = 'gpucluster'
+    elif 'cartesius' in platform:
+        platform = 'cartesius'
+    exp = Experiment(configfile, name, outputdir, platform=platform)
+    click.echo(exp.run())
+    return 0
+
+@cli.command()
+@click.option('-c', '--configfile', 'configfile', required=True, type=str)
+@click.option('-n', '--name', 'name', required=True)
+@click.option('-o', '--outputdir', 'outputdir', required=True)
+@click.option('-t', '--type', 'type', required=True)
+def job(configfile, name, outputdir, type):
+    runJob(type, name, configfile, outputdir)
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())  # pragma: no cover
+    sys.exit(cli())  # pragma: no cover

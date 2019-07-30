@@ -74,6 +74,10 @@ class JobApply(Job):
             if only_first: break
         self.tearDown()
 
+def main(configfile, name, tmpdir, homedir=None):
+    job = JobApply(configfile, name, tmpdir, homedir)
+    job.run()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run a job.')
@@ -82,5 +86,4 @@ if __name__ == '__main__':
     parser.add_argument('tmpdir', help='directory for the output.')
     parser.add_argument('--log', help='additional directory to write logs to.')
     args = parser.parse_args()
-    job = JobApply(args.configfile, args.name, args.tmpdir, args.log)
-    job.run()
+    main(args.configfile, args.name, args.tmpdir, args.log)

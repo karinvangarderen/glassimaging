@@ -7,7 +7,7 @@ To add a new platform: write the function to run on the platform and add a 'plat
 @author: Karin van Garderen
 """
 
-from glassimaging.execution.scripts import createBashScript
+from glassimaging.execution.utils import createBashScript, getScriptForJob
 import os
 import logging
 import subprocess
@@ -91,6 +91,12 @@ class Experiment():
                 self.jobsCreated[name] = True
 
         self.tearDown()
+
+    """ Fetches the correct script for each job type. """
+
+    def getScriptForJob(self, jobname):
+        jobtype = self.config["jobs"][jobname]['type']
+        return getScriptForJob(jobtype)
     
     """ The configuration is composed of both a file and a specific configuration
         Both can be either present or not, if neither are present the configuration is simply empty.
@@ -106,19 +112,7 @@ class Experiment():
         self.saveConfig(path, jobconfig)
         return path
     
-    """ Fetches the correct script for each job type. """        
-    def getScriptForJob(self, jobname):
-        jobtype = self.config["jobs"][jobname]['type']
-        if jobtype == 'eval':
-            return 'glassimaging.execution.jobs.jobeval'
-        elif jobtype == 'train':
-            return 'glassimaging.execution.jobs.jobtrain'
-        elif jobtype == 'setup':
-            return 'glassimaging.execution.jobs.jobsetup'
-        elif jobtype == 'apply':
-            return 'glassimaging.execution.jobs.jobapply'
-        elif jobtype == 'train_multipath':
-            return 'glassimaging.execution.jobs.jobtrain_multipath'
+
         
     def getExecuteString(self, platform, names, jobscripts, configfiles, job_outputdirs):
         if platform == 'cartesius':

@@ -6,6 +6,7 @@ Helper functions used during execution
 
 import os
 from string import Template
+import importlib
 
 
 """ Loads a templatefile and fills it using the provided config, and saves it to outputfile """
@@ -35,3 +36,21 @@ def runSlurmjob(outputdir, name, filename, config):
         f.write('python {} $1 $2 \n'.format(filename))
         f.write('deactivate \n')
 
+""" Fetches the correct script for each job type. """
+def getScriptForJob(jobtype):
+    if jobtype == 'eval':
+        return 'glassimaging.execution.jobs.jobeval'
+    elif jobtype == 'train':
+        return 'glassimaging.execution.jobs.jobtrain'
+    elif jobtype == 'setup':
+        return 'glassimaging.execution.jobs.jobsetup'
+    elif jobtype == 'apply':
+        return 'glassimaging.execution.jobs.jobapply'
+    elif jobtype == 'train_multipath':
+        return 'glassimaging.execution.jobs.jobtrain_multipath'
+
+
+def runJob(type, name, configfile, outputdir):
+    module_name = getScriptForJob(type)
+    mod = importlib.import_module(module_name)
+    mod.main(configfile, name, outputdir)

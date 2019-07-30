@@ -11,7 +11,18 @@ Automatic delineation of low-grade glioma from MR imaging for longitudinal analy
 Installation
 ----------------------
 1. Clone the repository
-2. Install requirements
+2. Install the requirements
+
+::
+
+      pip install -r requirements.txt
+
+3. Install glassimaging (NB: please always use a virtual environment!)
+
+::
+
+      python setup.py install
+
 3. If on a cluster, make a ``platform.ini`` file in the main directory,
     which contains the name of the
     cluster. For now, either ``gpucluster`` or ``cartesius``.
@@ -20,19 +31,27 @@ Installation
 Running an Experiment
 ----------------------
 An experiment (glassimaging.execution.experiment) is a set of Jobs,
-which may depend on eachother. Defining these Jobs as an Experiment makes it easier to
-run them sequentially (or in parallel) on a (SLURM-based) cluster. All configuration is
+which may depend on each other. Defining these Jobs as an Experiment makes it easier to
+run them sequentially (or in parallel) on a SLURM-based cluster. All configuration is
 defined in a JSON file.
 
-To run a job you need to specify three arguments:
+To run an experiment you need to specify three arguments:
 
 1. A name, or handle to call it by.
 2. A config file
 3. An output directory. A new directory will be made here, which contains all the logs
    and results
 
-``` python -m glassimaging.execution.experiment name config.json /home/outputdir/
-```
+::
+
+        python -m glassimaging.execution.experiment name config.json /home/outputdir/
+
+or
+
+::
+
+        glassimaging experiment -n name -c config.json -o /home/outputdir/
+
 
 
 Defining a Job
@@ -52,8 +71,19 @@ are defined in the experiment configuration. For each dependency the 'result' di
 will be copied to the temporary directory, and any file included may be accessed in the job.
 
 To run a stand-alone job:
-``` python -m glassimaging.execution.jobs.myjob name config.json /home/outputdir/
-```
+
+::
+
+        python -m glassimaging.execution.jobs.myjob name config.json /home/outputdir/
+
+or
+
+::
+
+        glassimaging job -t type -n name -c config.json -o /home/outputdir/
+
+To use a job in this way, the correct job class needs to be loaded automatically.
+To include your own jobs, add them this function: glassimaging.exectution.utils.getScriptForJob
 
 Using a new dataset
 --------------------

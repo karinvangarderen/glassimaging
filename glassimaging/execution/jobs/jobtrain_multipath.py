@@ -131,6 +131,11 @@ class JobTrainMultipath(Job):
 
         
 
+def main(configfile, name, tmpdir, homedir=None):
+    job = JobTrainMultipath(configfile, name, tmpdir, homedir)
+    job.run()
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run a job.')
     parser.add_argument('name', help='a name to call your job by.')
@@ -138,5 +143,4 @@ if __name__ == '__main__':
     parser.add_argument('tmpdir', help='directory for the output.')
     parser.add_argument('--log', help='additional directory to write logs to.')
     args = parser.parse_args()
-    job = JobTrainMultipath(args.configfile, args.name, args.tmpdir, args.log)
-    job.run()
+    main(args.configfile, args.name, args.tmpdir, args.log)
