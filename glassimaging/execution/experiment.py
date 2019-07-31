@@ -114,9 +114,10 @@ class Experiment():
         path = os.path.join(self.outputdir, name + '.json')
         self.saveConfig(path, jobconfig)
         return path
-    
 
-        
+    """ 
+    Get the lines for the job bash script that execute a script and copy the results back
+    """
     def getExecuteString(self, platform, names, jobscripts, configfiles, job_outputdirs):
         if platform == 'cartesius':
             return self.getExecuteStringCartesius(names, jobscripts, configfiles, job_outputdirs)
@@ -148,7 +149,10 @@ class Experiment():
                                                         name = n,\
                                                         outputdir = outputdirs[n])
         return string
-        
+
+    """ 
+    Get the lines for the job bash script that copies results from previous jobs to the temp directory
+    """
     def getCopyString(self, platform, copy_jobs):
         if platform == 'cartesius':
             return self.getCopyStringCartesius(copy_jobs)
@@ -160,7 +164,7 @@ class Experiment():
         for d in copy_jobs: 
             olddir = self.jobDirectories[d]
             newdir = d
-            copystring = copystring + 'cp -r {olddir}/result $TMPDIR/{newdir} \n'.format(olddir = olddir, newdir = newdir)
+            copystring = copystring + 'cp -r {olddir}/result $TMPDIR/{newdir} \n'.format(olddir=olddir, newdir=newdir)
         return copystring
             
     def getCopyStringGPUCluster(self, copy_jobs):
@@ -168,10 +172,13 @@ class Experiment():
         for d in copy_jobs: 
             olddir = self.jobDirectories[d]
             newdir = d
-            copystring = copystring + 'cp -r {olddir}/result $MY_TMP_DIR/{newdir}\n'.format(olddir = olddir, newdir = newdir)
+            copystring = copystring + 'cp -r {olddir}/result $MY_TMP_DIR/{newdir}\n'.format(olddir=olddir, newdir=newdir)
         return copystring
         
-            
+
+    """
+        Edit this configuration to change the time limit, partition or location of log files
+    """
     def getSlurmConfig(self, platform):
         if platform == 'cartesius':
             return {
@@ -217,9 +224,7 @@ class Experiment():
             os.mkdir(job_outputdirs[n])
             self.jobDirectories[n] = job_outputdirs[n]
 
-        print(self.outputdir)
-        print(job_outputdirs)
-
+        ### Functionality to run on a slurm-based cluster
         if platform == 'gpucluster' or platform == 'cartesius':
             ######## Setup the command to copy old results to the node
             copystring = self.getCopyString(platform, copy_jobs)
@@ -259,6 +264,8 @@ class Experiment():
             else:
                 self.logger.error("Error submitting {name}".format(name = names[0]))
             return jobnum
+
+        ### Functionality to run sequentially
         else:
             for n in names:
                 jobtype = self.getTypeForJob(n)
