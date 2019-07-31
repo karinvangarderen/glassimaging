@@ -1,7 +1,7 @@
 {
 				"Epochs": 1,
 				"Splits": [0],
-				"Model Source": "jobsetup",
+				"Model Source": "setup_unet",
 				"Patch size": [
 				 128,
 				 128,

@@ -7,7 +7,7 @@ To add a new platform: write the function to run on the platform and add a 'plat
 @author: Karin van Garderen
 """
 
-from glassimaging.execution.utils import createBashScript, getScriptForJob
+from glassimaging.execution.utils import createBashScript, getScriptForJob, runJob
 import os
 import logging
 import subprocess
@@ -97,6 +97,9 @@ class Experiment():
     def getScriptForJob(self, jobname):
         jobtype = self.config["jobs"][jobname]['type']
         return getScriptForJob(jobtype)
+
+    def getTypeForJob(self, jobname):
+        return self.config["jobs"][jobname]['type']
     
     """ The configuration is composed of both a file and a specific configuration
         Both can be either present or not, if neither are present the configuration is simply empty.
@@ -202,7 +205,7 @@ class Experiment():
     wait_for: list of names
     """
     def postJob(self, platform, names, jobscripts, configfiles, copy_jobs, wait_for):
-        
+
         ###### GPU cluster has permission issues
         if platform == 'gpucluster':
             os.umask(0)
@@ -213,45 +216,55 @@ class Experiment():
             job_outputdirs[n] = os.path.join(self.outputdir, n)
             os.mkdir(job_outputdirs[n])
             self.jobDirectories[n] = job_outputdirs[n]
-        
-        ######## Setup the command to copy old results to the node
-        copystring = self.getCopyString(platform, copy_jobs)
-        
-        ######## Setup commands to execute the scripts and copy the results
-        executestring = self.getExecuteString(platform, names, jobscripts, configfiles, job_outputdirs)
-            
-        ######## Combine everything to fill the template job files
-        slurm_config = self.getSlurmConfig(platform)
-        slurm_config['copystring'] =  copystring
-        slurm_config['executestring'] =  executestring
-            
-        ### Fill the template file
-        templatefile = self.getTemplatefile(platform)
-        path_script = os.path.join(self.outputdir, names[0] + '.job')
-        createBashScript(templatefile, path_script, slurm_config)
-        
-        #### Set the slurm dependencies for those jobs that have been created and execute accordingly
-        dependencystring = ''
-        for d in copy_jobs: 
-                if not self.jobsFinished[d]:
-                    dependencystring = dependencystring + ':' + str(self.jobnumbers[d])
-        if len(dependencystring) > 0:
-            dependencystring = '--dependency=afterok' + dependencystring
-            command = subprocess.run(["sbatch", dependencystring, path_script], stdout=subprocess.PIPE)
+
+        print(self.outputdir)
+        print(job_outputdirs)
+
+        if platform == 'gpucluster' or platform == 'cartesius':
+            ######## Setup the command to copy old results to the node
+            copystring = self.getCopyString(platform, copy_jobs)
+
+            ######## Setup commands to execute the scripts and copy the results
+            executestring = self.getExecuteString(platform, names, jobscripts, configfiles, job_outputdirs)
+
+            ######## Combine everything to fill the template job files
+            slurm_config = self.getSlurmConfig(platform)
+            slurm_config['copystring'] = copystring
+            slurm_config['executestring'] = executestring
+
+            ### Fill the template file
+            templatefile = self.getTemplatefile(platform)
+            path_script = os.path.join(self.outputdir, names[0] + '.job')
+            createBashScript(templatefile, path_script, slurm_config)
+
+            #### Set the slurm dependencies for those jobs that have been created and execute accordingly
+            dependencystring = ''
+            for d in copy_jobs:
+                    if not self.jobsFinished[d]:
+                        dependencystring = dependencystring + ':' + str(self.jobnumbers[d])
+            if len(dependencystring) > 0:
+                dependencystring = '--dependency=afterok' + dependencystring
+                command = subprocess.run(["sbatch", dependencystring, path_script], stdout=subprocess.PIPE)
+            else:
+                command = subprocess.run(["sbatch", path_script], stdout=subprocess.PIPE)
+
+            ### Log and find the returncode which contains the job number
+            self.logger.info("Submitting {name} with command: {command}".format(name = [names[0]], command=command.args))
+            jobresponse = command.stdout.decode('utf-8')
+            self.logger.info(jobresponse)
+            jobnum = int(re.findall('[0-9]+', jobresponse)[0])
+            status = command.returncode
+            if (status == 0 ):
+                self.logger.info("{name} is {s}".format(name =names[0], s=jobnum))
+            else:
+                self.logger.error("Error submitting {name}".format(name = names[0]))
+            return jobnum
         else:
-            command = subprocess.run(["sbatch", path_script], stdout=subprocess.PIPE)
-            
-        ### Log and find the returncode which contains the job number
-        self.logger.info("Submitting {name} with command: {command}".format(name = [names[0]], command=command.args))
-        jobresponse = command.stdout.decode('utf-8')
-        self.logger.info(jobresponse)
-        jobnum = int(re.findall('[0-9]+', jobresponse)[0])
-        status = command.returncode
-        if (status == 0 ):
-            self.logger.info("{name} is {s}".format(name =names[0], s=jobnum))
-        else:
-            self.logger.error("Error submitting {name}".format(name = names[0]))
-        return jobnum
+            for n in names:
+                jobtype = self.getTypeForJob(n)
+                runJob(jobtype, n, configfiles[n], self.outputdir)
+            return 0
+
     
     """ Release log files. """        
     def tearDown(self):
