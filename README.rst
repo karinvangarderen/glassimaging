@@ -13,15 +13,15 @@ Installation
 1. Clone the repository
 2. Make a virtual environment and load it.
 3. Install pytorch. https://pytorch.org/get-started/locally/
-4. Install through pip
+4. Install through pip in editable mode, because you will likely want to make some changes
 
 ::
 
-      pip install .
+      pip install --editable .
 
 5. If on a cluster, make a ``platform.ini`` file in the main directory,
     which contains the name of the
-    cluster. For now, either ``gpucluster`` or ``cartesius``.
+    cluster. For now, either ``bigr-nzxt-7`` or ``cartesius``.
 
 
 Running an Experiment
