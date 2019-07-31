@@ -5,6 +5,7 @@ import sys
 import click
 from glassimaging.execution.experiment import Experiment
 from glassimaging.execution.utils import runJob
+from glassimaging.preprocessing.preprocess_subject import process_experiment
 
 @click.group()
 def cli():
@@ -37,6 +38,15 @@ def experiment(configfile, name, outputdir):
 def job(configfile, name, outputdir, type):
     runJob(type, name, configfile, outputdir)
     return 0
+
+@cli.command()
+@click.option('-h', '--xnathost', 'xnathost', required=True, type=str)
+@click.option('-s', '--subject', 'subject', required=True)
+@click.option('-o', '--outputdir', 'outputdir', required=True)
+def preprocess(xnathost, subject, outputdir):
+    process_experiment(xnathost, subject, outputdir)
+    return 0
+
 
 
 if __name__ == "__main__":

@@ -8,7 +8,8 @@ from setuptools import setup, find_packages
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
-requirements = ['Click>=6.0', 'torch>=0.4', 'numpy>=1.15.0']
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
 
 setup_requirements = ['pytest-runner', ]
 
@@ -37,7 +38,7 @@ setup(
     include_package_data=True,
     keywords='glassimaging',
     name='glassimaging',
-    packages=find_packages(include=['glassimaging']),
+    packages=find_packages(include=['glassimaging', 'glassimaging.*']),
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,

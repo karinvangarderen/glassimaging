@@ -11,19 +11,15 @@ Automatic delineation of low-grade glioma from MR imaging for longitudinal analy
 Installation
 ----------------------
 1. Clone the repository
-2. Install the requirements
+2. Make a virtual environment and load it.
+3. Install pytorch. https://pytorch.org/get-started/locally/
+4. Install through pip
 
 ::
 
-      pip install -r requirements.txt
+      pip install .
 
-3. Install glassimaging (NB: please always use a virtual environment!)
-
-::
-
-      python setup.py install
-
-3. If on a cluster, make a ``platform.ini`` file in the main directory,
+5. If on a cluster, make a ``platform.ini`` file in the main directory,
     which contains the name of the
     cluster. For now, either ``gpucluster`` or ``cartesius``.
 
