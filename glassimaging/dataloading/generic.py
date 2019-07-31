@@ -149,3 +149,46 @@ class GenericDataset(NiftiDataset, Dataset):
     def saveListOfPatients(self, path):
         with open(path, 'w') as file:
             json.dump(self.patients.tolist(), file)
+
+class SingleInstanceDataset(NiftiDataset, Dataset):
+
+    def __init__(self, image_paths, brainmask_path=None, transform=None):
+        NiftiDataset.__init__(self)
+        self.image_paths = image_paths
+        self.brainmask_path = brainmask_path
+        self.transform = transform
+
+    def __len__(self):
+        return 1
+
+    def __getitem__(self, idx):
+        images = [self.loadImage(image) for image in self.image_paths]
+        images = np.stack(images)
+        if self.brainmask_path is not None:
+            brainmask = self.loadSegBinarize(self.brainmask_path)
+
+        for i in range(0, images.shape[0]):
+            img = images[i]
+            maxval = np.percentile(img, 99)
+            minval = np.percentile(img, 1)
+            img = np.clip(img, minval, maxval)
+            if self.brainmask_path is not None:
+                values_nonzero = img[np.nonzero(brainmask)]
+                mean_nonzero = np.mean(values_nonzero)
+                std_nonzero = np.std(values_nonzero)
+                if std_nonzero == 0:
+                    raise ValueError('Standard deviation of image is zero')
+                img = (img - mean_nonzero) / std_nonzero
+                img[np.where(brainmask == 0)] = 0
+            else:
+                mean = np.mean(img)
+                std = np.std(img)
+                if std == 0:
+                    raise ValueError('Standard deviation of image is zero')
+                img = (img - mean) / std
+            images[i] = img
+
+        sample = {'data': images, 'header_source': self.image_paths[0], 't1_source': self.image_paths[0]}
+        if self.transform is not None:
+            sample = self.transform(sample)
+        return sample

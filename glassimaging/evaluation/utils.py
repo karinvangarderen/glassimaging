@@ -189,9 +189,12 @@ def logDataLoader(dataloader, directory):
     loader = iter(dataloader)
     batch = next(loader)
     img = batch["data"]
-    seg = batch["seg"]
-    subj = batch["subject"]
-    print(img.shape)
+    if "seg" in batch:
+        seg = batch["seg"]
+    if "subject" in batch:
+        subj = batch["subject"]
+    else:
+        subj = "subject"
     for i in range(0, img.shape[0]):
         plt.figure(figsize=(10, 10))
         sl = img.shape[3] // 2
@@ -199,21 +202,11 @@ def logDataLoader(dataloader, directory):
             plt.subplot(3, 2, j + 1)
             plt.imshow(img[i, j, :, sl], cmap="gray")  # only grayscale image here
             plt.colorbar()
-        sl = seg.shape[2] // 2
-        plt.subplot(3, 2, 5)
-        plt.imshow(seg[i, :, sl], cmap="gray")  # only grayscale image here
+        if "seg" in batch:
+            sl = seg.shape[2] // 2
+            plt.subplot(3, 2, 5)
+            plt.imshow(seg[i, :, sl], cmap="gray")  # only grayscale image here
         plt.colorbar()
         plt.savefig(os.path.join(directory, 'batch_{}_input.png'.format(subj[i])))
         plt.close()
 
-
-def plotResultImageWithoutGT(path_t1, path_result, savepath, subject, output_type='save'):
-    if output_type == 'save':
-        plotting.plot_roi(path_result, path_t1, title=str(subject))
-        plt.savefig(os.path.join(savepath, 'result_' + subject + '.png'))
-        plt.close()
-        logging.info('Subject ' + str(subject) + ' plotted with image ' + path_t1 + '.')
-    elif output_type == 'show':
-        plotting.plot_roi(path_result, path_t1, title=str(subject))
-        plt.show()
-        plt.close()

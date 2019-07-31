@@ -79,9 +79,12 @@ class Job():
             self.logger.removeHandler(handler)
             
     def getGitLabel(self):
-        gitlabel = subprocess.check_output(["git", "describe", "--always"]).strip()
-        logging.info('Current Git Label: ' + str(gitlabel))
-        return str(gitlabel)       
+        try:
+            gitlabel = subprocess.check_output(["git", "describe", "--always"]).strip()
+            logging.info('Current Git Label: ' + str(gitlabel))
+            return str(gitlabel)
+        except:
+            return 'unknown'
     
     def run(self):
         ### Depending on the job type in configfile, do something
