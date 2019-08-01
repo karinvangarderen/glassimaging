@@ -12,7 +12,8 @@ def fastr_apply_network():
     source_config = network.create_source('JsonFile', id='config')
     source_brainmask = network.create_source('NiftiImageFileCompressed', id='MASK')
 
-    apply = network.create_node("glassimaging/SegmentTumor:1.0", tool_version='1.0', id='segment')
+    limit = fastr.core.resourcelimit.ResourceLimit(memory='5G')
+    apply = network.create_node("glassimaging/SegmentTumor:1.0", tool_version='1.0', id='segment', resources=limit)
 
     source_t1.output >> apply.inputs['t1']
     source_t2.output >> apply.inputs['t2']
