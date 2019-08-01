@@ -1,7 +1,7 @@
 import fastr
 import argparse
 
-def create_network():
+def fastr_apply_network():
     network = fastr.create_network(id="applynetwork")
 
     source_t1 = network.create_source('NiftiImageFileCompressed', id='T1')
@@ -26,23 +26,20 @@ def create_network():
 
     apply.outputs['seg'] >> sink.input
 
-
-
-
     return network
 
 def main():
-    network = create_network()
+    network = fastr_apply_network()
 
     network.draw()
 
-    source_data = {'T1': "vfs://data/EGD-preprocessed/EGD-0016/Radiology_E47004/t1.nii.gz",
-                  'T2': "vfs://data/EGD-preprocessed/EGD-0016/Radiology_E47004/t2.nii.gz",
-                    'FLAIR':"vfs://data/EGD-preprocessed/EGD-0016/Radiology_E47004/flair.nii.gz",
-                    'T1GD': "vfs://data/EGD-preprocessed/EGD-0016/Radiology_E47004/t1gd.nii.gz",
-                    'MASK': "vfs://data/EGD-preprocessed/EGD-0016/Radiology_E47004/brainmask.nii.gz",
-                   'config': 'vfs://home/glassimaging/config/apply_single.json',
-                   'model': 'vfs://tmp/20190731123251_test/train_unet/model.pt',
+    source_data = {'T1': "vfs://home/EGD-preprocessed/EGD-0016/Radiology_E47004/t1.nii.gz",
+                  'T2': "vfs://home/EGD-preprocessed/EGD-0016/Radiology_E47004/t2.nii.gz",
+                    'FLAIR':"vfs://home/EGD-preprocessed/EGD-0016/Radiology_E47004/flair.nii.gz",
+                    'T1GD': "vfs://home/EGD-preprocessed/EGD-0016/Radiology_E47004/t1gd.nii.gz",
+                    'MASK': "vfs://home/EGD-preprocessed/EGD-0016/Radiology_E47004/brainmask.nii.gz",
+                   'config': 'vfs://home/applymodel/config.json',
+                   'model': 'vfs://home/applymodel/model.pt',
                    }
     sink_data = {
         'segmentation': 'vfs://tmp/' + 'fastr-seg{ext}',
