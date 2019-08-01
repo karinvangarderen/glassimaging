@@ -28,9 +28,26 @@ def create_network_egd():
 
     source_elastix_params = network.create_source('ElastixParameterFile', id='parameters')
 
-    create_coregister_transform(network, source_t1Gd.output, node_resample, source_elastix_params, 't1gd')
-    create_coregister_transform(network, source_t2.output, node_resample, source_elastix_params, 't2')
-    create_coregister_transform(network, source_flair.output, node_resample, source_elastix_params, 'flair')
+    transform_t1gd = create_coregister_transform(network, source_t1Gd.output, node_resample, source_elastix_params, 't1gd')
+    transform_t2 = create_coregister_transform(network, source_t2.output, node_resample, source_elastix_params, 't2')
+    transform_flair = create_coregister_transform(network, source_flair.output, node_resample, source_elastix_params, 'flair')
+
+    source_model = network.create_source('Model', id='MODEL')
+    source_config = network.create_source('JsonFile', id='MODEL_CONFIG')
+
+    apply_model = network.create_node("glassimaging/SegmentTumor:1.0", tool_version='1.0', id='segment')
+
+    node_resample.outputs['image_resampled'] >> apply_model.inputs['t1']
+    transform_t2.outputs['image'] >> apply_model.inputs['t2']
+    transform_t1gd.outputs['image'] >> apply_model.inputs['t1gd']
+    transform_flair.outputs['image'] >> apply_model.inputs['flair']
+    source_model.output >> apply_model.inputs['model']
+    source_config.output >> apply_model.inputs['config']
+    node_resample.outputs['mask_resampled'] >> apply_model.inputs['brainmask']
+
+    sink = network.create_sink('NiftiImageFileCompressed', id='segmentation')
+
+    apply_model.outputs['seg'] >> sink.input
     return network
 
 def create_coregister_transform(network, source_image, source_baseline, source_parameters, name, transform_image=None):
@@ -49,7 +66,7 @@ def create_coregister_transform(network, source_image, source_baseline, source_p
         transform_image >> transformix.inputs['image']
     sink_transformix = network.create_sink('NiftiImageFileCompressed', id='transform_result_{}'.format(name))
     link_cast_sink = transformix.outputs['image'] >> sink_transformix.input
-    return
+    return transformix
 
 
 
@@ -65,7 +82,9 @@ def main(resultpath):
                     'FLAIR': scans.format('6'),
                     'T1GD': scans.format('9'),
                    'parameters': 'vfs://home/glassimaging/glassimaging/preprocessing/elastix_parameters.txt',
-                   'parameters_seg': 'vfs://home/glassimaging/glassimaging/preprocessing/elastix_parameters_seg.txt'}
+                   'parameters_seg': 'vfs://home/glassimaging/glassimaging/preprocessing/elastix_parameters_seg.txt',
+                   'MODEL': ' vfs://home/applymodel/model.pt',
+                   'MODEL_CONFIG': ' vfs://home/applymodel/config.json'}
     sink_data = {
         'resampled_t1': file_location + 't1{ext}',
         'bet_mask': file_location + 'brainmask{ext}',
@@ -75,6 +94,7 @@ def main(resultpath):
         'transform_result_t1gd': file_location + 't1gd{ext}',
         'transform_result_t2': file_location + 't2{ext}',
         'transform_result_flair': file_location + 'flair{ext}',
+        'segmentation': file_location + 'seg{ext}',
     }
 
     network.execute(source_data, sink_data)

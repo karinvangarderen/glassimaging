@@ -21,13 +21,18 @@ def process_experiment(xnathost, subject, path_scans):
         'transform_result_t1gd': file_location + 't1gd{ext}',
         'transform_result_t2': file_location + 't2{ext}',
         'transform_result_flair': file_location + 'flair{ext}',
+        'segmentation': file_location + 'seg{ext}',
+
     }
     source_data = {'T1': {},
                    'T2': {},
                    'T1GD': {},
                    'FLAIR': {},
                    'parameters': 'vfs://home/glassimaging/glassimaging/preprocessing/elastix_parameters.txt',
-                   'parameters_seg': 'vfs://home/glassimaging/glassimaging/preprocessing/elastix_parameters_seg.txt'}
+                   'parameters_seg': 'vfs://home/glassimaging/glassimaging/preprocessing/elastix_parameters_seg.txt',
+                   'MODEL': 'vfs://home/applymodel/model.pt',
+                   'MODEL_CONFIG': 'vfs://home/applymodel/config.json'}
+
     with open(path_scans.format(subject), 'r+') as f:
         found_scans = json.load(f)
 
