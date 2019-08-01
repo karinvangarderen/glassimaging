@@ -20,7 +20,7 @@
             <input id="t2" name="t2" datatype="NiftiImageFileCompressed" prefix="--t2" cardinality="1" required="true" />
             <input id="flair" name="flair" datatype="NiftiImageFileCompressed" prefix="--t1gd" cardinality="1" required="true" />
             <input id="t1gd" name="t1gd" datatype="NiftiImageFileCompressed" prefix="--flair" cardinality="1" required="true" />
-            <input id="config" name="configfile" datatype="JSONFile" prefix="-c" cardinality="1" required="true" />
+            <input id="config" name="configfile" datatype="JsonFile" prefix="-c" cardinality="1" required="true" />
             <input id="model" name="modelpath" datatype="Model" prefix="-m" cardinality="1" required="true" />
             <input id="brainmask" name="brainmask" datatype="NiftiImageFileCompressed" prefix="-b" cardinality="1" required="true" />
          </inputs>

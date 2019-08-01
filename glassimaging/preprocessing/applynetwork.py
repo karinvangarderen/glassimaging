@@ -9,7 +9,7 @@ def create_network():
     source_t1Gd = network.create_source('NiftiImageFileCompressed', id='T1GD')
     source_flair = network.create_source('NiftiImageFileCompressed', id='FLAIR')
     source_model = network.create_source('Model', id='model')
-    source_config = network.create_source('JSONFile', id='config')
+    source_config = network.create_source('JsonFile', id='config')
     source_brainmask = network.create_source('NiftiImageFileCompressed', id='MASK')
 
     apply = network.create_node("glassimaging/SegmentTumor:1.0", tool_version='1.0', id='segment')
