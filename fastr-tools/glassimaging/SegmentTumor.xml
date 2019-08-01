@@ -1,0 +1,32 @@
+<tool id="SegmentTumor" name="SegmentTumor" version="1.0">
+    <description>Apply a network to a set of images to segment a tumor.</description>
+    <authors>
+        <author name="Karin van Garderen" email="k.vangarderen@erasmusmc.nl" />
+    </authors>
+    <command version="1.0">
+        <authors>
+        <author name="Karin van Garderen" email="k.vangarderen@erasmusmc.nl" />
+        </authors>
+        <targets>
+            <target os="*" arch="*" paths="../../glassimaging/" bin="apply_network.py" interpreter="python" />
+        </targets>
+
+
+    </command>
+
+    <interface>
+        <inputs>
+            <input id="t1" name="t1" datatype="NiftiImageFileCompressed" prefix="--t1" cardinality="1" required="true" />
+            <input id="t2" name="t2" datatype="NiftiImageFileCompressed" prefix="--t2" cardinality="1" required="true" />
+            <input id="flair" name="flair" datatype="NiftiImageFileCompressed" prefix="--t1gd" cardinality="1" required="true" />
+            <input id="t1gd" name="t1gd" datatype="NiftiImageFileCompressed" prefix="--flair" cardinality="1" required="true" />
+            <input id="config" name="configfile" datatype="JSONFile" prefix="-c" cardinality="1" required="true" />
+            <input id="model" name="modelpath" datatype="Model" prefix="-m" cardinality="1" required="true" />
+            <input id="brainmask" name="brainmask" datatype="NiftiImageFileCompressed" prefix="-b" cardinality="1" required="true" />
+         </inputs>
+        <outputs>
+          <output id="seg" name="segmentation" datatype="NiftiImageFileCompressed" cardinality="1" automatic="True" method="path" required="true" location="./result/segmentation.nii.gz"/>
+        </outputs>
+    </interface>
+
+</tool>
