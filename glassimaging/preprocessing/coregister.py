@@ -1,7 +1,7 @@
 import fastr
 import argparse
 
-def create_network_egd():
+def create_network_egd(apply_model=False, segmentation=False):
     network = fastr.create_network(id="preprocess_glioma_egd")
 
     source_t1 = network.create_source('NiftiImageFileCompressed', id='T1')
@@ -32,22 +32,31 @@ def create_network_egd():
     transform_t2 = create_coregister_transform(network, source_t2.output, node_resample, source_elastix_params, 't2')
     transform_flair = create_coregister_transform(network, source_flair.output, node_resample, source_elastix_params, 'flair')
 
-    source_model = network.create_source('Model', id='MODEL')
-    source_config = network.create_source('JsonFile', id='MODEL_CONFIG')
+    if apply_model:
+        source_model = network.create_source('Model', id='MODEL')
+        source_config = network.create_source('JsonFile', id='MODEL_CONFIG')
 
-    apply_model = network.create_node("glassimaging/SegmentTumor:1.0", tool_version='1.0', id='segment')
+        apply_model = network.create_node("glassimaging/SegmentTumor:1.0", tool_version='1.0', id='segment')
 
-    node_resample.outputs['image_resampled'] >> apply_model.inputs['t1']
-    transform_t2.outputs['image'] >> apply_model.inputs['t2']
-    transform_t1gd.outputs['image'] >> apply_model.inputs['t1gd']
-    transform_flair.outputs['image'] >> apply_model.inputs['flair']
-    source_model.output >> apply_model.inputs['model']
-    source_config.output >> apply_model.inputs['config']
-    node_resample.outputs['mask_resampled'] >> apply_model.inputs['brainmask']
+        node_resample.outputs['image_resampled'] >> apply_model.inputs['t1']
+        transform_t2.outputs['image'] >> apply_model.inputs['t2']
+        transform_t1gd.outputs['image'] >> apply_model.inputs['t1gd']
+        transform_flair.outputs['image'] >> apply_model.inputs['flair']
+        source_model.output >> apply_model.inputs['model']
+        source_config.output >> apply_model.inputs['config']
+        node_resample.outputs['mask_resampled'] >> apply_model.inputs['brainmask']
 
-    sink = network.create_sink('NiftiImageFileCompressed', id='segmentation')
+        sink = network.create_sink('NiftiImageFileCompressed', id='segmentation')
 
-    apply_model.outputs['seg'] >> sink.input
+        apply_model.outputs['seg'] >> sink.input
+
+    if segmentation:
+        source_elastix_params_seg = network.create_source('ElastixParameterFile', id='parameters_seg')
+        source_seg = network.create_source('NiftiImageFileCompressed', id='SEG')
+        source_imseg = network.create_source('NiftiImageFileCompressed', id='IMSEG')
+        create_coregister_transform_seg(network, source_imseg.output, node_resample, source_seg.output,
+                                        source_elastix_params_seg, 'seg')
+
     return network
 
 def create_coregister_transform(network, source_image, source_baseline, source_parameters, name, transform_image=None):
@@ -67,6 +76,20 @@ def create_coregister_transform(network, source_image, source_baseline, source_p
     sink_transformix = network.create_sink('NiftiImageFileCompressed', id='transform_result_{}'.format(name))
     link_cast_sink = transformix.outputs['image'] >> sink_transformix.input
     return transformix
+
+def create_coregister_transform_seg(network, source_image, source_baseline, source_seg, source_parameters, name):
+    coregister = network.create_node('elastix/Elastix:4.8', tool_version='0.2', id='coregister_{}'.format(name))
+    sink_transform = network.create_sink('ElastixTransformFile', id='transform_file_{}'.format(name))
+    link_transform_sink = coregister.outputs['transform'] >> sink_transform.input
+    link_parameters_registration = source_parameters.output >> coregister.inputs['parameters']
+    link_convert_coregister = source_image >> coregister.inputs['moving_image']
+    link_baseline_coregister = source_baseline.outputs['image_resampled'] >> coregister.inputs['fixed_image']
+    transformix = network.create_node('elastix/Transformix:4.8', tool_version='0.2', id='transformix_{}'.format(name))
+    link_coregister_transformix = coregister.outputs['transform'] >> transformix.inputs['transform']
+    link_image_transformix = source_seg >> transformix.inputs['image']
+    sink_transformix = network.create_sink('NiftiImageFileCompressed', id='transform_result_{}'.format(name))
+    link_cast_sink = transformix.outputs['image'] >> sink_transformix.input
+    return
 
 
 
