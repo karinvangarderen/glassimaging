@@ -13,7 +13,7 @@ def process_experiment(xnathost, subject, file_source, file_sink = None):
     else:
         file_location = file_sink
 
-    network = create_network_egd()
+    network = create_network_egd(segmentation=False)
     network.draw()
     sink_data = {
         'resampled_t1': file_location + 't1{ext}',
@@ -24,7 +24,8 @@ def process_experiment(xnathost, subject, file_source, file_sink = None):
         'transform_result_t1gd': file_location + 't1gd{ext}',
         'transform_result_t2': file_location + 't2{ext}',
         'transform_result_flair': file_location + 'flair{ext}',
-        'segmentation': file_location + 'seg{ext}',
+        #'transform_file_seg': file_location + 'transform_seg{ext}',
+        #'transform_result_seg': file_location + 'seg{ext}',
     }
     source_data = {'T1': {},
                    'T2': {},
@@ -40,15 +41,19 @@ def process_experiment(xnathost, subject, file_source, file_sink = None):
         found_scans = json.load(f)
 
     for exp in found_scans:
-            res = found_scans[exp]
+            res = found_scans[exp]['scans']
             for type in TYPES:
                 if type in res:
-                    source_data[type][exp] = xnat_replace_http + res[type]['uri'] + '/resources/NIFTI/files/image.nii.gz'
+                    source_data[type][exp] = res[type]['uri'].replace('https://', 'xnat://') + '/resources/NIFTI/files/image.nii.gz'
                 else:
                     source_data[type][exp] = ''
             if 'SEG' in res:
-                source_data['SEG'][exp] = xnat_replace_http + res['SEG']['uri'] + '/resources/MASKS/files/tumor_MW.nii.gz'
-                source_data['IMSEG'][exp] = xnat_replace_http + res['SEG']['uri'] + '/resources/MASKS/files/tumor_MW_image.nii.gz'
+                source_data['SEG'][exp] = res['SEG']['uri'].replace('https://', 'xnat://') + '/resources/MASKS/files/tumor_MW.nii.gz'
+                source_data['IMSEG'][exp] = res['SEG']['uri'].replace('https://', 'xnat://') + '/resources/MASKS/files/tumor_MW_image.nii.gz'
+            else:
+                source_data['SEG'][exp] = ''
+                source_data['IMSEG'][exp] = ''
+
 
     network.execute(source_data, sink_data)
 
