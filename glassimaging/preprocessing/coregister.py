@@ -17,6 +17,10 @@ def create_network_egd(apply_model=False, segmentation=False):
     link_t1_bet = source_t1.output >> bet_node.inputs['image']
     link_t2_bet = source_t2.output >> bet_node.inputs['T2_image']
 
+    node_biasfield = network.create_node('custom/biasfield:0.1', tool_version='0.1', id='biasfield', resources=limit)
+    source_flair.output >> node_biasfield.inputs['image']
+    bet_node.outputs['mask_image'] >> node_biasfield.inputs['brainmask']
+
     node_resample = network.create_node('custom/resample:0.1', tool_version='0.1', id='resample', resources=limit)
     link_img_resample = source_t1.output >> node_resample.inputs['image']
     link_mask_resample = bet_node.outputs['mask_image'] >> node_resample.inputs['mask']
@@ -30,7 +34,7 @@ def create_network_egd(apply_model=False, segmentation=False):
 
     transform_t1gd = create_coregister_transform(network, source_t1Gd.output, node_resample, source_elastix_params, 't1gd')
     transform_t2 = create_coregister_transform(network, source_t2.output, node_resample, source_elastix_params, 't2')
-    transform_flair = create_coregister_transform(network, source_flair.output, node_resample, source_elastix_params, 'flair')
+    transform_flair = create_coregister_transform(network, node_biasfield.outputs['image_corrected'], node_resample, source_elastix_params, 'flair')
 
     if apply_model:
         source_model = network.create_source('Model', id='MODEL')
