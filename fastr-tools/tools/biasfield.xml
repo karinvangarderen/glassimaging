@@ -1,0 +1,22 @@
+<tool id="biasfield" name="biasfield" version="0.1">
+    <authors>
+        <author name="Karin van Garderen" />
+    </authors>
+    <command version="0.1">
+    <authors>
+        <author name="Karin van Garderen" />
+    </authors>
+    <targets>
+        <target arch="*" bin="biasfield.py" interpreter="python" os="*" paths="bin/" />
+	</targets>
+    </command>
+    <interface>
+        <inputs>
+            <input cardinality="1" datatype="NiftiImageFile" id="image" name="image" required="True" prefix="--img"/>
+            <input cardinality="1" datatype="NiftiImageFile" id="brainmask" name="brainmask" required="False" prefix="--brainmask"/>
+        </inputs>
+        <outputs>
+            <output cardinality="1" datatype="NiftiImageFileCompressed" id="image_corrected" name="image out" required="True" prefix="--imgout" />
+        </outputs>
+    </interface>
+</tool>
