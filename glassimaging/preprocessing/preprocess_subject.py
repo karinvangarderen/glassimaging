@@ -24,6 +24,7 @@ def process_experiment(xnathost, subject, file_source, file_sink = None):
         'transform_result_t1gd': file_location + 't1gd{ext}',
         'transform_result_t2': file_location + 't2{ext}',
         'transform_result_flair': file_location + 'flair{ext}',
+        'corrected_flair': file_location + 'flair_corrected{ext}',
         #'transform_file_seg': file_location + 'transform_seg{ext}',
         #'transform_result_seg': file_location + 'seg{ext}',
     }
