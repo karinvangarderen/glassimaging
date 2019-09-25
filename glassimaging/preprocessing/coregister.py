@@ -33,7 +33,8 @@ def create_network_egd(apply_model=False, segmentation=False):
     transform_t2 = create_coregister_transform(network, source_t2.output, node_resample, source_elastix_params, 't2')
     transform_flair = create_coregister_transform(network, source_flair.output, node_resample, source_elastix_params, 'flair')
 
-    node_biasfield = network.create_node('n4/N4:1.6', tool_version='0.1', id='biasfield', resources=limit)
+    limit_bias = fastr.core.resourcelimit.ResourceLimit(memory='5G')
+    node_biasfield = network.create_node('n4/N4:1.6', tool_version='0.1', id='biasfield', resources=limit_bias)
     transform_flair.outputs['image'] >> node_biasfield.inputs['image']
     node_resample.outputs['mask_resampled'] >> node_biasfield.inputs['mask']
 
