@@ -17,9 +17,6 @@ def create_network_egd(apply_model=False, segmentation=False):
     link_t1_bet = source_t1.output >> bet_node.inputs['image']
     link_t2_bet = source_t2.output >> bet_node.inputs['T2_image']
 
-    node_biasfield = network.create_node('custom/biasfield:0.1', tool_version='0.1', id='biasfield', resources=limit)
-    source_flair.output >> node_biasfield.inputs['image']
-    bet_node.outputs['mask_image'] >> node_biasfield.inputs['brainmask']
 
     node_resample = network.create_node('custom/resample:0.1', tool_version='0.1', id='resample', resources=limit)
     link_img_resample = source_t1.output >> node_resample.inputs['image']
@@ -34,7 +31,14 @@ def create_network_egd(apply_model=False, segmentation=False):
 
     transform_t1gd = create_coregister_transform(network, source_t1Gd.output, node_resample, source_elastix_params, 't1gd')
     transform_t2 = create_coregister_transform(network, source_t2.output, node_resample, source_elastix_params, 't2')
-    transform_flair = create_coregister_transform(network, node_biasfield.outputs['image_corrected'], node_resample, source_elastix_params, 'flair')
+    transform_flair = create_coregister_transform(network, source_flair.output, node_resample, source_elastix_params, 'flair')
+
+    node_biasfield = network.create_node('n4/N4:1.6', tool_version='0.1', id='biasfield', resources=limit)
+    transform_flair.outputs['image'] >> node_biasfield.inputs['image']
+    node_resample.outputs['mask_resampled'] >> node_biasfield.inputs['mask']
+
+    sink_bias_corrected_flair = network.create_sink('NiftiImageFileCompressed', id='corrected_flair')
+    link_cast_sink = node_biasfield.outputs['image'] >> sink_bias_corrected_flair.input
 
     if apply_model:
         source_model = network.create_source('Model', id='MODEL')
@@ -121,6 +125,7 @@ def main(resultpath):
         'transform_result_t1gd': file_location + 't1gd{ext}',
         'transform_result_t2': file_location + 't2{ext}',
         'transform_result_flair': file_location + 'flair{ext}',
+        'corrected_flair': file_location + 'flair_corrected{ext}',
         'segmentation': file_location + 'seg{ext}',
     }
 
