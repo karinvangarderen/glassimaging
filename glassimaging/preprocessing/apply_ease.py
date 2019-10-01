@@ -4,15 +4,15 @@ import argparse
 def create_network_egd(apply_model=False, segmentation=False):
     network = fastr.create_network(id="preprocess_glioma_egd")
 
-    source_t1 = network.create_source('DicomImageFile', id='T1')
-    source_t2 = network.create_source('DicomImageFile', id='T2')
-    source_t1Gd = network.create_source('DicomImageFile', id='T1GD')
-    source_flair = network.create_source('DicomImageFile', id='FLAIR')
+    source_t1 = network.create_source('Directory', id='T1')
+    source_t2 = network.create_source('Directory', id='T2')
+    source_t1Gd = network.create_source('Directory', id='T1GD')
+    source_flair = network.create_source('Directory', id='FLAIR')
 
     output_pre_t1 = preprocess_image(network, source_t1, 'T1')
-    output_pre_t2 = preprocess_image(network, source_t1, 'T2')
-    output_pre_t1gd = preprocess_image(network, source_t1, 'T1GD')
-    output_pre_flair = preprocess_image(network, source_t1, 'FLAIR')
+    output_pre_t2 = preprocess_image(network, source_t2, 'T2')
+    output_pre_t1gd = preprocess_image(network, source_t1Gd, 'T1GD')
+    output_pre_flair = preprocess_image(network, source_flair, 'FLAIR')
 
 
     limit = fastr.core.resourcelimit.ResourceLimit(memory='3G')
@@ -25,7 +25,7 @@ def create_network_egd(apply_model=False, segmentation=False):
 
 
     node_resample = network.create_node('glassimaging/resample:0.1', tool_version='0.1', id='resample', resources=limit)
-    link_img_resample = output_pre_t1.output >> node_resample.inputs['image']
+    link_img_resample = output_pre_t1 >> node_resample.inputs['image']
     link_mask_resample = bet_node.outputs['mask_image'] >> node_resample.inputs['mask']
     sink_resample = network.create_sink('NiftiImageFileCompressed', id='resampled_t1')
     link_resample_sink = node_resample.outputs['image_resampled'] >> sink_resample.input
@@ -111,7 +111,7 @@ def preprocess_image(network, source_dicom, id):
     return fsl2std.outputs['reoriented_image']
 
 def correct_biasfield(network, image_output, mask_output, id, resourcelimit):
-    node_biasfield = network.create_node('n4/N4:1.6', tool_version='0.1', id='biasfield', resources=resourcelimit)
+    node_biasfield = network.create_node('n4/N4:1.6', tool_version='0.1', id='biasfield_{}'.format(id), resources=resourcelimit)
     image_output >> node_biasfield.inputs['image']
     mask_output >> node_biasfield.inputs['mask']
 
