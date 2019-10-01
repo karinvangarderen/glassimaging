@@ -1,0 +1,51 @@
+<tool id="FSLMerge" name="FSL tool for concatenating image files into a single output image" version="0.2">
+  <authors>
+    <author name="Marcel Zwiers" email="m.zwiers@donders.ru.nl" url="http://www.ru.nl/donders"/>
+  </authors>
+  <command version="5.0.9" url="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Fslutils">
+    <authors>
+      <author name="Unknown"/>
+    </authors>
+    <targets>
+      <target os="linux"  arch="*" module="fsl/5.0.9" bin="fslmerge"/>
+      <target os="darwin" arch="*" module="fsl/5.0.9" bin="fslmerge"/>
+    </targets>
+    <description>
+       FSL tool for concatenating image files into a single output. This concatenation can be in time, or in X, Y or Z. All image dimensions (except for the one being concatenated over) must be the same in all input images. For example, this can be used to take multiple 3D files (eg as output by SPM) and create a single 4D image file.
+    </description>
+  </command>
+  <interface>
+    <inputs>
+      <input id="t_flag" name="Concatente in t dimension"
+             prefix="-t"  datatype="Boolean" cardinality="1" required="False"/>
+      <input id="x_flag" name="Concatente in x dimension"
+             prefix="-x"  datatype="Boolean" cardinality="1" required="False"/>
+      <input id="y_flag" name="Concatente in y dimension"
+             prefix="-y"  datatype="Boolean" cardinality="1" required="False"/>
+      <input id="z_flag" name="Concatente in z dimension"
+             prefix="-z"  datatype="Boolean" cardinality="1" required="False"/>
+      <input id="a_flag" name="Auto choose the dimension"
+             prefix="-a"  datatype="Boolean" cardinality="1" required="False"/>
+      <input id="TR"     name="Set the output volume TR"
+             prefix="-tr" datatype="Boolean" cardinality="1" required="False"/>
+      <input id="images_" name="Input Image"
+             order="-2" datatype="NiftiImageFile" cardinality="1-*" required="False"/>
+      <input id="images" name="Input Image"
+             order="-1" datatype="NiftiImageFile" cardinality="1-*" required="True"/>
+    </inputs>
+    <outputs>
+      <output id="image" name="Concatenated output image"
+              order="6" datatype="NiftiImageFileCompressed" cardinality="1" required="True"/>
+    </outputs>
+  </interface>
+</tool>
+
+<!--
+Usage: fslmerge <-x/y/z/t/a/tr> <output> <file1 file2 .......> [tr value in seconds]
+     -t : concatenate images in time
+     -x : concatenate images in the x direction
+     -y : concatenate images in the y direction
+     -z : concatenate images in the z direction
+     -a : auto-choose: single slices -> volume, volumes -> 4D (time series)
+     -tr : concatenate images in time and set the output image tr to the final option value
+-->

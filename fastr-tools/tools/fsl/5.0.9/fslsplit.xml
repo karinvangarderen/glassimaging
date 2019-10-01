@@ -1,0 +1,58 @@
+<tool id="FSLSplit" name="Split images into series of lower dimensional images" version="0.2">
+  <authors>
+    <author name="Hakim Achterberg" email="h.achterberg@erasmusmc.nl" url="http://www.bigr.nl/people/HakimAchterberg"/>
+  </authors>
+  <command version="5.0.9" url="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Fslutils">
+    <targets>
+      <target os="linux"  arch="*" module="fsl/5.0.9" bin="fslsplit">
+	<paths>
+          <path type="bin" value="/usr/local/fsl/bin/" />
+          <path type="lib" value="/usr/local/fsl/lib/" />
+        </paths>
+	</target>
+      <target os="darwin" arch="*" modules="fsl/5.0.9" paths="bin_linux/" bin="fslsplit"/>
+    </targets>
+    <description>
+    </description>
+    <license/>
+    <authors>
+    </authors>
+  </command>
+  <interface>
+    <inputs>
+      <input id="image" name="Input Image" datatype="NiftiImageFile" order="0" cardinality="1"
+             required="true"/>
+      <input id="t_flag" name="Split in t dimension" prefix="-t" datatype="Boolean" order="2" cardinality="1"
+             required="false"/>
+      <input id="x_flag" name="Split in x dimension" prefix="-x" datatype="Boolean" order="3" cardinality="1"
+             required="false"/>
+      <input id="y_flag" name="Split in y dimension" prefix="-y" datatype="Boolean" order="4" cardinality="1"
+             required="false"/>
+      <input id="z_flag" name="Split in z dimension" prefix="-z" datatype="Boolean" order="5" cardinality="1"
+             required="false"/>
+
+    </inputs>
+    <outputs>
+      <output id="basename" name="output image basename" datatype="FilePrefix" order="1" cardinality="1" required="true"/>
+      <output id="images" name="output image" datatype="NiftiImageFileCompressed" order="6" cardinality="unknown"
+              required="true" automatic="true" method="path"
+              location="{output.basename[0]}{special.cardinality:04d}.{special.extension}"/>
+    </outputs>
+  </interface>
+  <requirements/>
+  <tests/>
+  <help>
+  </help>
+  <cite>
+  </cite>
+  <references/>
+</tool>
+
+<!--
+Usage: fslsplit <input>
+       fslsplit <input> [output_basename] [-t/x/y/z]
+       -t : separate images in time (default behaviour)
+       -x : separate images in the x direction
+       -y : separate images in the y direction
+       -z : separate images in the z direction
+-->

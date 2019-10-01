@@ -1,0 +1,27 @@
+<tool id="StandardSpaceRoi" name="Mask input image with standard space ROI" version="0.1">
+  <description>Mask input image with standard space ROI</description>
+  <authors>
+    <author name="Adriaan Versteeg" email="a.versteeg@erasmusmc.nl" url="http://www.bigr.nl/people/AdriaanVersteeg"/>
+  </authors>
+  <command version="5.0.9" url="">
+    <targets>
+        <target os="*" arch="*" module="fsl/5.0.9" bin="standard_space_roi"/>
+    </targets>
+    <authors>
+      <author name="Adriaan Versteeg" email="a.versteeg@erasmusmc.nl" url="http://www.bigr.nl/people/AdriaanVersteeg"/>
+    </authors>
+  </command>
+  <interface>
+    <inputs>
+        <input id="image" name="input image" datatype="NiftiImageFile" order="0" cardinality="1" required="true" />
+        <input id="mask_FOV" name="mask output using transformed standard space FOV" order="3" datatype="Boolean" prefix="-maskFOV" required="false"/>
+        <input id="mask_NONE" name="do not mask output" order="3" datatype="Boolean" prefix="-maskNONE" required="false"/>
+        <input id="roi_FOV" name="cut down input FOV using bounding box of the transformed standard space FOV (default)" order="4" datatype="Boolean" prefix="-roiFOV" required="false"/>
+        <input id="roi_NONE" name=" do not cut down FOV" order="5" datatype="Boolean" prefix="-roiNONE" required="false"/>
+    </inputs>
+    <outputs>
+      <output id="image" name="output image" datatype="NiftiImageFile" order="1" cardinality="1" required="true" />
+</outputs>
+  </interface>
+</tool>
+

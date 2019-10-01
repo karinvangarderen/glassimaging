@@ -1,0 +1,36 @@
+{
+  "original_input_data": {
+    "moving_image": "./test/input_data/slice091.mhd", 
+    "parameters": [
+      "./test/input_data/parAslice.txt", 
+      "./test/input_data/parBslice.txt"
+    ], 
+    "fixed_image": "./test/input_data/slice047.mhd"
+  }, 
+  "input_data": {
+    "moving_image": [
+      "$REFDIR/input_data/slice091.mhd"
+    ], 
+    "parameters": [
+      "$REFDIR/input_data/parAslice.txt", 
+      "$REFDIR/input_data/parBslice.txt"
+    ], 
+    "fixed_image": [
+      "$REFDIR/input_data/slice047.mhd"
+    ]
+  }, 
+  "used_input_data": {
+    "moving_image": [
+      "/home/hachterberg/dev/fastr-tools/image_analysis/tools/elastix/4.8/test2/input_data/slice091.mhd"
+    ], 
+    "parameters": [
+      "/home/hachterberg/dev/fastr-tools/image_analysis/tools/elastix/4.8/test2/input_data/parAslice.txt", 
+      "/home/hachterberg/dev/fastr-tools/image_analysis/tools/elastix/4.8/test2/input_data/parBslice.txt"
+    ], 
+    "fixed_image": [
+      "/home/hachterberg/dev/fastr-tools/image_analysis/tools/elastix/4.8/test2/input_data/slice047.mhd"
+    ]
+  }, 
+  "version": "4.8", 
+  "tool": "elastix.Elastix"
+}

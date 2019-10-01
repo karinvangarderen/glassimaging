@@ -1,0 +1,36 @@
+<tool id="N4" name="N4 non uniformity correction" version="0.1">
+  <authors>
+    <author name="Hakim Achterberg" email="h.achterberg@erasmusmc.nl" url="http://www.bigr.nl/people/HakimAchterberg"/>
+  </authors>
+  <command version="1.6" url="">
+    <targets>
+      <target os="linux" arch="*" paths="vfs://apps/n4/1.6/bin/" modules="n4/1.6" bin="n4"/>
+    </targets>
+    <description>
+    </description>
+    <license/>
+    <authors>
+    </authors>
+  </command>
+  <interface>
+    <inputs>
+      <input id="number_of_dimensions" name="Number of Dimensions" datatype="UnsignedInt" required="false" default="3" order="0" />
+      <input id="image" name="Input Image" prefix="-i" datatype="ITKImageFile" required="true"/>
+      <input id="mask" name="Mask Image" prefix="-x" datatype="ITKImageFile" required="false"/>
+      <input id="weight_image" name="Weight Image" prefix="-w" datatype="ITKImageFile" required="false"/>
+      <input id="shrink_factor" name="Shrink Factor" prefix="-s" datatype="UnsignedInt" required="false"/>
+      <input id="converge" name="Converge" prefix="-c" datatype="String" required="false"/>
+      <input id="bspline_fitting" name="B-Spline fitting" prefix="-b" datatype="String" required="false"/>
+    </inputs>
+    <outputs>
+      <output id="image" name="Output Image" prefix="-o" datatype="ITKImageFile"/>
+    </outputs>
+  </interface>
+  <requirements/>
+  <tests/>
+  <help>
+  </help>
+  <cite>
+  </cite>
+  <references/>
+</tool>

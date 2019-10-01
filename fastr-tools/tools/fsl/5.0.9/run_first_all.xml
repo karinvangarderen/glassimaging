@@ -1,0 +1,88 @@
+<tool id="RunFirstAll" name="Subcortical segmentation script from FSL" version="0.1">
+  <authors>
+    <author name="Marcel Zwiers" email="m.zwiers@donders.ru.nl" url="http://www.ru.nl/donders"/>
+  </authors>
+  <command version="5.0.9" url="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FIRST">
+    <authors>
+      <author name="Brian Patenaude"/>
+    </authors>
+    <targets>
+      <target os="linux"  arch="*" module="fsl/5.0.9" bin="run_first_all"/>
+      <target os="darwin" arch="*" module="fsl/5.0.9" bin="run_first_all"/>
+    </targets>
+    <description>
+       FIRST is a model-based subcortical segmentation/registration tool for T1 structural images from FSL. This script will run lower-level utilities (including first_flirt, run_first and first) on all the structures, with the settings (number of modes and boundary correction) tuned to be optimal for each structure. Both mesh (vtk) and volumetric (nifti) outputs are generated. Corrected and uncorrected volumetric representations of the native mesh are generated. The final stage of the script ensures that there is no overlap between structures in the 3D image, which can occur even when there is no overlap of the meshes, as can be seen in the individual, uncorrected segmentation images in the 4D image file.
+    </description>
+  </command>
+  <interface>
+    <inputs>
+      <input id="boundary_correction_flag" name="Specifies the boundary correction method"
+             prefix="-m" datatype="Boolean" cardinality="1" required="False"
+             description="Specifies the boundary correction method. The default is auto, which chooses different options for different structures using the settings that were found to be empirically optimal for each structure. Other options are: fast (using FAST-based, mixture-model, tissue-type classification); thresh (thresholds a simple single-Gaussian intensity model); or none."/>
+      <input id="brain_extraction_flag" name="Specifies brain extracted input"
+             prefix="-b" datatype="Boolean" cardinality="1" required="False"
+             description="Specifies that the input image is brain extracted - important when calculating the registration."/>
+      <input id="structure" name="Structure to be segmented"
+             prefix="-s" datatype="String" cardinality="1" required="False"
+             description="Allows a restricted set of structures (one or more) to be selected. For more than one structure the list must be comma separated with no spaces. The list of possible structures is: L_Accu L_Amyg L_Caud L_Hipp L_Pall L_Puta L_Thal R_Accu R_Amyg R_Caud R_Hipp R_Pall R_Puta R_Thal BrStem."/>
+      <input id="registration_matrix" name="Specified registration matrix"
+             prefix="-a" datatype="MatFile" cardinality="1" required="False"
+             description="Specifies a pre-calculated registration matrix (from running first_flirt) to be used instead of calculating the registration again."/>
+      <input id="staging_flag" name="Use 3-stage affine registration (only currently for hippocampus)"
+             prefix="-3" datatype="Boolean" cardinality="1" required="False"/>
+      <input id="cleanup_flag" name="Do not cleanup image output files (useful for debugging)"
+             prefix="-d" datatype="Boolean" cardinality="1" required="False"/>
+      <input id="verbose_flag" name="Show verbose output"
+             prefix="-v" datatype="Boolean" cardinality="1" required="False"/>
+      <input id="t1_image" name="T1 structural image"
+             prefix="-i" datatype="NiftiImageFile" cardinality="1" required="True"/>
+    </inputs>
+    <outputs>
+      <output id="basename" name="Basename of the output data"
+              prefix="-o" datatype="FilePrefix" cardinality="1" required="True"
+              description="Basename of the output files (e.g. [basename]_all_fast_firstseg.nii.gz). Can be the same as the T1 structural image basename"/>
+      <output id="firstseg" name="Single segmented image"
+              automatic="True" datatype="NiftiImageFileCompressed" cardinality="1" location="{output.basename[0]}_all_fast_firstseg.{special.extension}" method="path"
+              description="This is a single image showing the segmented output for all structures. The image is produced by filling the estimated surface meshes and then running a step to ensure that there is no overlap between structures. The output uses the CMA standard labels (the colour table is built into FSLView). If another boundary correction method is specified, the name fast in this filename will change to reflect the boundary correction that is used. Note that if only one structure is specified then this file will be called output_name-struct_corr.nii.gz instead (e.g. sub001-L_Caud_corr.nii.gz)."/>
+      <output id="origsegs" name="Individual segmentations (not boundary corrected)"
+              automatic="True" datatype="NiftiImageFileCompressed" cardinality="1" location="{output.basename[0]}_all_fast_origsegs.{special.extension}" method="path"
+              description="This is a 4D image containing the individual structure segmentations, converted directly from the native mesh representation and without any boundary correction. For each structure there is an individual 3D image where the interior is labeled according to the CMA standard labels while the boundary uses these label values plus 100. Note that if only one structure is specified then this file will be called output_name-struct_first.nii.gz instead (e.g. sub001-L_Caud_first.nii.gz)."/>
+      <!--output id="mesh" name="Final mesh segmentation"
+              automatic="True" datatype="AnyFile" cardinality="1-*" location="{output.basename[0]}*_first.vtk" method="path"
+              description="This is the mesh representation of the final segmentation. It can be directly viewed in FSLView using 3D mode."/>
+      <output id="bvars" name="Mode parameters and the model used"
+              automatic="True" datatype="AnyFile" cardinality="1-*" location="{output.basename[0]}*_first.bvars" method="path"
+              description="This is a 4D image containing the individual structure segmentations, converted directly from the native mesh representation and without any boundary correction. For each structure there is an individual 3D image where the interior is labeled according to the CMA standard labels while the boundary uses these label values plus 100. Note that if only one structure is specified then this file will be called output_name-struct_first.nii.gz instead (e.g. sub001-L_Caud_first.nii.gz)."/-->
+      <output id="log_directory" name="Directory with log files"
+              automatic="True" datatype="Directory" cardinality="1" location="{output.basename[0]}.logs" method="path"/>
+    </outputs>
+  </interface>
+  <cite>
+    @Article {pmid21352927,
+      Author  = "Patenaude, B.  and Smith, S. M.  and Kennedy, D. N.  and Jenkinson, M. ",
+      Title   = "{{A} {B}ayesian model of shape and appearance for subcortical brain segmentation}",
+      Journal = "Neuroimage",
+      Year    = "2011",
+      Volume  = "56",
+      Number  = "3",
+      Pages   = "907--922",
+      Month   = "Jun"
+    }
+  </cite>
+</tool>
+
+<!--
+Usage: run_first_all [options] -i <input_image> -o <output_image>
+
+Optional arguments:
+  -m <method>      : method must be one of auto, fast, none or a (numerical) threshold value
+  -b               : input is already brain extracted
+  -s <name>        : run only on one specified structure (e.g. L_Hipp) or a comma separated list (no spaces)
+  -a <img2std.mat> : use affine matrix (do not re-run registration)
+  -3               : use 3-stage affine registration (only currently for hippocampus)
+  -d               : do not cleanup image output files (useful for debugging)
+  -v               : verbose output
+  -h               : display this help message
+
+e.g.:  run_first_all -i im1 -o output_name
+-->

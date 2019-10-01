@@ -1,0 +1,82 @@
+<tool id="Feat" name="FSL tool for concatenating image files into a single output image" version="0.1">
+  <authors>
+    <author name="Marcel Zwiers" email="m.zwiers@donders.ru.nl" url="http://www.ru.nl/donders"/>
+  </authors>
+  <command version="5.0.9" url="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FEAT">
+    <authors>
+      <author name="Unknown"/>
+    </authors>
+    <targets>
+      <target os="linux"  arch="*" module="fsl/5.0.9" bin="feat_wrapper.sh" interpreter="bash" paths="bin/"/>
+      <target os="darwin" arch="*" module="fsl/5.0.9" bin="feat_wrapper.sh" interpreter="bash" paths="bin/"/>
+    </targets>
+    <description>
+       FEAT is a software tool for high quality model-based FMRI data analysis
+    </description>
+  </command>
+  <interface>
+    <inputs>
+      <input id="setup_file" name="FEAT setup file, describing everything about the FEAT setup. This can be loaded into the FEAT GUI."
+             order="0" datatype="FsfFile" cardinality="1" required="True"/>
+      <input id="fmri_images" name="4D fmri nifti-file"
+             order="1" datatype="NiftiImageFile" cardinality="1" required="True"/>
+      <input id="TR" name="The volume TR of the fMRI images (TR=0 parses the TR from the header)"
+             order="3" datatype="Float" cardinality="1" required="True" default="0"/>
+      <input id="t1_brain_image" name="Brain-extracted T1 image"
+             order="4" datatype="NiftiImageFile" cardinality="1" required="False"/>
+      <input id="t1_image" name="Original T1 image"
+             order="5" datatype="NiftiImageFile" cardinality="1" required="False"/>
+    </inputs>
+    <outputs>
+      <output id="feat_basename" name="Basename of the FEAT output directory"
+              order="2" datatype="FilePrefix" cardinality="1" required="True"/>
+      <output id="feat_directory" name="FEAT output directory"
+              automatic="True" datatype="Directory" cardinality="1" location="{output.feat_basename[0]}.feat" method="path"/>
+      <output id="filtered_images" name="4D FMRI data after all filtering has been carried out"
+              automatic="True" datatype="NiftiImageFileCompressed" cardinality="1" location="{output.feat_basename[0]}.feat/filtered_func_data.{special.extension}" method="path"
+              description="The 4D FMRI data after all filtering has been carried out. (prefiltered_func_data is the output from motion correction and the input to filtering, and will not normally be saved in the FEAT directory.) Although filtered_func_data will normally have been temporally high-pass filtered, it is not zero mean; the mean value for each voxel's timecourse has been added back in for various practical reasons. When FILM begins the linear modelling, it starts by removing this mean."/>
+      <output id="example_image" name="The example functional image used as the target in motion correction"
+              automatic="True" datatype="NiftiImageFileCompressed" cardinality="1" location="{output.feat_basename[0]}.feat/example_func.{special.extension}" method="path"
+              description="The example functional image used for colour rendering, and also the one that was used as the target in motion correction. This is saved before any processing is carried out. This is also the image that is used in registration to structural and/or standard images."/>
+      <output id="mask_image" name="The binary brain mask used at various stages in the analysis"
+              automatic="True" datatype="NiftiImageFileCompressed" cardinality="1" location="{output.feat_basename[0]}.feat/mask.{special.extension}" method="path"/>
+      <output id="mean_image" name="The mean functional image"
+              automatic="True" datatype="NiftiImageFileCompressed" cardinality="1" location="{output.feat_basename[0]}.feat/mean_func.{special.extension}" method="path"/>
+      <output id="design_matrix" name="FEAT design matrix file"
+              automatic="True" datatype="MatFile" cardinality="1" location="{output.feat_basename[0]}.feat/design.mat" method="path"/>
+      <output id="design_contrast" name="FEAT design contrast file"
+              automatic="True" datatype="ConFile" cardinality="1" location="{output.feat_basename[0]}.feat/design.con" method="path"/>
+      <!--output id="report_log" name="A html-log of the FEAT run, including all calls to FSL programs and their log outputs"
+              automatic="True" datatype="AnyFile" cardinality="1" location="{output.feat_basename[0]}.feat/report_log.html" method="path"/-->
+      <output id="example_func2highres" name="The mat file describing the registration of the low res FMRI data to the high res image"
+              automatic="True" datatype="MatFile" cardinality="1" location="{output.feat_basename[0]}.feat/reg/example_func2highres.mat" method="path" required="False"/>
+      <output id="example_func2standard" name="The mat file describing the registration of the low res FMRI data to the standard image"
+              automatic="True" datatype="MatFile" cardinality="1" location="{output.feat_basename[0]}.feat/reg/example_func2standard.mat" method="path"/>
+      <output id="example_func2standard_image" name="The FMRI image in standard MNI152 2mm space"
+              automatic="True" datatype="NiftiImageFileCompressed" cardinality="1" location="{output.feat_basename[0]}.feat/reg/example_func2standard.{special.extension}" method="path"/>
+      <output id="example_func2standard_warp_image" name="The warp field to standard MNI152 2mm space"
+              automatic="True" datatype="NiftiImageFileCompressed" cardinality="1" location="{output.feat_basename[0]}.feat/reg/example_func2standard_warp.{special.extension}" method="path"/>
+      <output id="highres2example_func" name="The mat file describing the registration of the high res image to the low res FMRI data"
+              automatic="True" datatype="MatFile" cardinality="1" location="{output.feat_basename[0]}.feat/reg/highres2example_func.mat" method="path" required="False"/>
+      <output id="highres2standard" name="The mat file describing the registration of the high res image to the standard image"
+              automatic="True" datatype="MatFile" cardinality="1" location="{output.feat_basename[0]}.feat/reg/highres2standard.mat" method="path" required="False"/>
+      <output id="highres2standard_image" name="The highres image warped to MNI152 2mm space"
+              automatic="True" datatype="NiftiImageFileCompressed" cardinality="1" location="{output.feat_basename[0]}.feat/reg/highres2standard.{special.extension}" method="path"/>
+      <output id="highres2standard_linear_image" name="The highres image linearly transformed to MNI152 2mm space"
+              automatic="True" datatype="NiftiImageFileCompressed" cardinality="1" location="{output.feat_basename[0]}.feat/reg/highres2standard_linear.{special.extension}" method="path"/>
+      <output id="highres2standard_warp_image" name="The warp field to standard MNI152 2mm space"
+              automatic="True" datatype="NiftiImageFileCompressed" cardinality="1" location="{output.feat_basename[0]}.feat/reg/highres2standard_warp.{special.extension}" method="path"/>
+      <output id="standard2example_func" name="The mat file describing the registration of the standard image to the low res FMRI data"
+              automatic="True" datatype="MatFile" cardinality="1" location="{output.feat_basename[0]}.feat/reg/standard2example_func.mat" method="path"/>
+      <output id="standard2highres" name="The mat file describing the registration of the standard image to the high res image"
+              automatic="True" datatype="MatFile" cardinality="1" location="{output.feat_basename[0]}.feat/reg/standard2highres.mat" method="path" required="False"/>
+      <!--output id="prefiltered_func_data_mcf" name="The rotation and translation motion parameters estimated by MCFLIRT"
+              automatic="True" datatype="AnyFile" cardinality="1" location="{output.feat_basename[0]}.feat/mc/prefiltered_func_data_mcf.par" method="path"/-->
+    </outputs>
+  </interface>
+</tool>
+
+<!--
+Usage: feat_wrapper.sh design.fsf fmri_images [TR [t1_image]]
+Usage: feat design.fsf
+-->

@@ -1,0 +1,125 @@
+<tool id="FSLStats" name="FSL tool for reporting summary statistics" version="0.1">
+  <authors>
+    <author name="Marcel Zwiers" email="m.zwiers@donders.ru.nl" url="http://www.ru.nl/donders"/>
+  </authors>
+  <command version="5.0.9" url="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Fslutils">
+    <authors>
+      <author name="Unknown"/>
+    </authors>
+    <targets>
+      <target os="linux"  arch="*" module="fsl/5.0.9" bin="fslstats"/>
+      <target os="darwin" arch="*" module="fsl/5.0.9" bin="fslstats"/>
+    </targets>
+    <description>
+       This is a tool from FSL that reports certain summary statistics for an input 3D/4D image. Of particular value is the "robust intensity range" which calculates values similar to the 2% and 98% percentiles, but ensuring that the majority of the intensity range is captured, even for binary images. In addition, it can take an aribitrary mask as input (values need to be greater than 0.5 to be part of the mask) so that statistics are only calculated within the mask and can also generate histogram data. Note that the options of the commandline version are applied in order, e.g. -M -l 10 -M will report the non-zero mean, apply a threshold and then report the new nonzero mean. Custom ordering of the options is, however, not supported in this tool (see flstats -h for the applied order). Note - thresholds are not inclusive ie lthresh &lt; allowed &lt; uthresh
+    </description>
+  </command>
+  <interface>
+    <inputs>
+      <input id="separate_output_flag" name="Will give a separate output line for each 3D volume of a 4D timeseries"
+             order="0" prefix="-t" datatype="Boolean" cardinality="1" required="False"/>
+      <input id="image" name="Input image"
+             order="1" datatype="NiftiImageFile" cardinality="1" required="True"/>
+      <input id="lower_threshold" name="Set lower threshold"
+             order="2" prefix="-l" datatype="Float" required="False"/>
+      <input id="upper_threshold" name="Set upper threshold"
+             order="3" prefix="-u" datatype="Float" required="False"/>
+      <input id="abs_flag" name="Use absolute values of all image intensities"
+             order="21" prefix="-a" datatype="Boolean" cardinality="1" required="False"/>
+      <input id="nan_flag" name="Treat NaN or Inf as zero for subsequent stats"
+             order="22" prefix="-n" datatype="Boolean" cardinality="1" required="False"/>
+      <input id="mask" name="Use the specified image (filename) for masking - overrides lower and upper thresholds"
+             order="23" prefix="-k" datatype="NiftiImageFile" cardinality="1" required="False"/>
+      <input id="difference" name="Take the difference between the base image and the image specified here"
+             order="24" prefix="-d" datatype="NiftiImageFile" cardinality="1" required="False"/>
+    </inputs>
+    <outputs>
+      <output id="robust_intensity" name="Output [robust min intensity] [robust max intensity]"
+              order="4" prefix="-r" datatype="Float" cardinality="2"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="intensity" name="Output [min intensity] [max intensity]"
+              order="5" prefix="-R" datatype="Float" cardinality="2"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <!--output id="entropy" name="Output mean entropy ; mean(-i*ln(i))"
+              order="6" prefix="-e" datatype="Float" cardinality="1"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="nonzero_entropy" name="Output mean entropy (of nonzero voxels)"
+              order="7" prefix="-E" datatype="Float" cardinality="1"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/-->
+      <output id="volume" name="Output [voxels] [volume]"
+              order="8" prefix="-v" datatype="Float" cardinality="2"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="nonzero_volume" name="Output [voxels] [volume] (for nonzero voxels)"
+              order="9" prefix="-V" datatype="Float" cardinality="2"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <!--output id="mean" name="Output mean"
+              order="10" prefix="-m" datatype="Float" cardinality="1"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="nonzero_mean" name="Output mean (for nonzero voxels)"
+              order="11" prefix="-M" datatype="Float" cardinality="1"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="standard_deviation" name="Output standard deviation"
+              order="12" prefix="-s" datatype="Boolean" cardinality="1"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="nonzero_standard_deviation" name="Output standard deviation (for nonzero voxels)"
+              order="13" prefix="-S" datatype="Float" cardinality="1"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="smallest_roi" name="Output smallest ROI [xmin] [xsize] [ymin] [ysize] [zmin] [zsize] [tmin] [tsize] containing nonzero voxels"
+              order="14" prefix="-w" datatype="Int" cardinality="unknown"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="max_coord" name="Output co-ordinates of maximum voxel"
+              order="15" prefix="-x" datatype="Int" cardinality="unknown"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="min_coord" name="Output co-ordinates of minimum voxel"
+              order="16" prefix="-X" datatype="Int" cardinality="unknown"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="cog_mm" name="Output centre-of-gravity (cog) in mm coordinates"
+              order="17" prefix="-c" datatype="Float" cardinality="unknown"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="cog_vox" name="Output centre-of-gravity (cog) in voxel coordinates"
+              order="18" prefix="-C" datatype="Float" cardinality="unknown"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="percentile" name="Output nth percentile (n between 0 and 100)"
+              order="19" prefix="-p" datatype="Float" cardinality="1"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/>
+      <output id="nonzero_percentile" name="Output nth percentile (for nonzero voxels)"
+              order="20" prefix="-P" datatype="Float" cardinality="1"
+              location="(.*\S)" separator=" " method="stdout" automatic="True" required="False"/-->
+    </outputs>
+  </interface>
+</tool>
+
+<!--
+Usage: fslstats [-t] <input> [options]
+
+-t will give a separate output line for each 3D volume of a 4D timeseries
+Note - options are applied in order, e.g. -M -l 10 -M will report the non-zero mean, apply a threshold and then report the new nonzero mean
+
+-l <lthresh> : set lower threshold                                                                                      
+-u <uthresh> : set upper threshold                                                                                      
+-r           : output <robust min intensity> <robust max intensity>                                                     
+-R           : output <min intensity> <max intensity>                                                                   
+-e           : output mean entropy ; mean(-i*ln(i))                                                                     
+-E           : output mean entropy (of nonzero voxels)                                                                  
+-v           : output <voxels> <volume>                                                                                 
+-V           : output <voxels> <volume> (for nonzero voxels)                                                            
+-m           : output mean                                                                                              
+-M           : output mean (for nonzero voxels)                                                                         
+-s           : output standard deviation                                                                                
+-S           : output standard deviation (for nonzero voxels)                                                           
+-w           : output smallest ROI <xmin> <xsize> <ymin> <ysize> <zmin> <zsize> <tmin> <tsize> containing nonzero voxels
+-x           : output co-ordinates of maximum voxel                                                                     
+-X           : output co-ordinates of minimum voxel                                                                     
+-c           : output centre-of-gravity (cog) in mm coordinates                                                         
+-C           : output centre-of-gravity (cog) in voxel coordinates                                                      
+-p <n>       : output nth percentile (n between 0 and 100)                                                              
+-P <n>       : output nth percentile (for nonzero voxels)                                                               
+-a           : use absolute values of all image intensities                                                             
+-n           : treat NaN or Inf as zero for subsequent stats                                                            
+-k <mask>    : use the specified image (filename) for masking - overrides lower and upper thresholds                    
+-d <image>   : take the difference between the base image and the image specified here                                  
+-h <nbins>   : output a histogram (for the thresholded/masked voxels only) with nbins                                   
+-H <nbins> <min> <max>   : output a histogram (for the thresholded/masked voxels only) with nbins and histogram limits of min and max
+
+Note - thresholds are not inclusive ie lthresh<allowed<uthresh
+-->

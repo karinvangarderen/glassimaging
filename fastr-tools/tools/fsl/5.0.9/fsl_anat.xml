@@ -1,0 +1,154 @@
+<tool id="FSLAnat" name="General pipeline for processing T1 images from FSL" version="0.1">
+  <authors>
+    <author name="Marcel Zwiers" email="m.zwiers@donders.ru.nl" url="http://www.ru.nl/donders"/>
+  </authors>
+  <command version="5.0.9" url="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/fsl_anat">
+    <authors>
+      <author name="Tom Nichols"/>
+    </authors>
+    <targets>
+      <target os="linux"  arch="*" module="fsl/5.0.9" bin="fsl_anat"/>
+      <target os="darwin" arch="*" module="fsl/5.0.9" bin="fsl_anat"/>
+    </targets>
+    <description>
+      This tool provides a general pipeline for processing anatomical images (e.g. T1-weighted scans).
+      Most of the pipeline involves standard use of FSL tools, but the bias-field correction has been substantially improved, especially for strong bias-fields typical of multi-coil arrays and high-field scanners. The stages in the pipeline (in order) are:
+        * reorient the images to the standard (MNI) orientation [fslreorient2std]
+        * automatically crop the image [robustfov]
+        * bias-field correction (RF/B1-inhomogeneity-correction) [FAST]
+        * registration to standard space (linear and non-linear) [FLIRT and FNIRT]
+        * brain-extraction [FNIRT-based or BET]
+        * tissue-type segmentation [FAST]
+        * subcortical structure segmentation [FIRST] 
+      The overall run-time is heavily dependent on the resolution of the image but anything between 30 and 90 minutes would be typical.
+    </description>
+  </command>
+  <interface>
+    <inputs>
+      <input id="image" name="Input image"
+             prefix="-i" cardinality="1" datatype="NiftiImageFile" required="False"/>
+      <input id="anat_directory" name="Name of existing .anat directory where this script will be run in place"
+             prefix="-d" cardinality="1" datatype="Directory" required="False"/>
+      <input id="clobber" name="Flag for deleting pre-existing .anat directory"
+             prefix="--clobber" cardinality="1" datatype="Boolean" required="False"/>
+      <input id="weak_bias" name="Flag for images with little and/or smooth bias fields"
+             prefix="--weakbias" cardinality="1" datatype="Boolean" required="False"/>
+      <input id="no_reorient" name="Flag to turn off fslreorient2std"
+             prefix="--noreorient" cardinality="1" datatype="Boolean" required="False"/>
+      <input id="no_crop" name="Flag to turn off automated cropping (robustfov)"
+             prefix="--nocrop" cardinality="1" datatype="Boolean" required="False"/>
+      <input id="no_bias" name="Flag to turn off bias field correction (via FAST)"
+             prefix="--nobias" cardinality="1" datatype="Boolean" required="False"/>
+      <input id="no_reg" name="Flag to turn off registration to standard (FLIRT and FNIRT)"
+             prefix="--noreg" cardinality="1" datatype="Boolean" required="False"/>
+      <input id="no_nonlin_reg" name="Flag to turn off non-linear registration (FNIRT)"
+             prefix="--nononlinreg" cardinality="1" datatype="Boolean" required="False"/>
+      <input id="no_seg" name="Flag to turn off tissue-type segmentation (FAST)"
+             prefix="--noseg" cardinality="1" datatype="Boolean" required="False"/>
+      <input id="no_subcort_seg" name="Flag to turn off sub-cortical segmentation (FIRST)"
+             prefix="--nosubcortseg" cardinality="1" datatype="Boolean" required="False"/>
+      <input id="bias_smoothing" name="Value for bias field smoothing (the -l option in FAST)"
+             prefix="-s" cardinality="1" datatype="Float" required="False"/>
+      <input id="modality" name="Type of image (default is T1)"
+             prefix="-t" cardinality="1" required="False" default="T1">
+        <enum>T1</enum>
+        <enum>T2</enum>
+        <enum>PD</enum>
+      </input>
+      <input id="no_search" name="Flag to specify that linear registration uses the -nosearch option (FLIRT)"
+             prefix="--nosearch" cardinality="1" datatype="Boolean" required="False"/>
+      <input id="bet_f_param" name="Specify f parameter for BET (only used if not running non-linear reg and also wanting brain extraction done)"
+             prefix="--betfparam" cardinality="1" datatype="Boolean" required="False"/>
+      <input id="no_cleanup" name="Flag to keep intermediate files"
+             prefix="--nocleanup" cardinality="1" datatype="Boolean" required="False"/>
+    </inputs>
+    <outputs>
+      <output id="base_directory" name="Basename of directory for output"
+              prefix="-o" datatype="FilePrefix" required="True"/>
+      <output id="anat_directory" name="Output Name of directory for output"
+              automatic="True" cardinality="1" datatype="Directory"
+              location="{output_parts.base_directory[0]}.anat"/>
+      <output id="image" name="Reoriented and cropped version of the input image"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}.{special.extension}"/>
+      <output id="biascorr_image" name="The bias-corrected version of the output image"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_biascorr.{special.extension}"/>
+      <output id="orig2std_mat" name="Transformation file to allow images to be moved to standard space"
+              automatic="True" cardinality="1" datatype="MatFile"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_orig2std.mat"/>
+      <output id="nonroi2roi_mat" name="Transformation file to allow images to be moved to the reoriented and cropped space"
+              automatic="True" cardinality="1" datatype="MatFile"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_nonroi2roi.mat"/>
+      <output id="T1_to_MNI_lin_image" name="The image registered linearly to standard space"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_to_MNI_lin.{special.extension}"/>
+      <output id="T1_to_MNI_nonlin_image" name="The image registered non-linearly to standard space"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_to_MNI_nonlin.{special.extension}"/>
+      <output id="T1_to_MNI_nonlin_field_image" name="The non-linear warp field to standard space"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_to_MNI_nonlin_field.{special.extension}"/>
+      <output id="T1_to_MNI_nonlin_jac_image" name="The Jacobian of the non-linear warp field to standard space"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_to_MNI_nonlin_jac.{special.extension}"/>
+      <output id="MNI_to_T1_nonlin_field_image" name="The non-linear warp field to T1 space"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed"
+              location="{output_parts.base_directory[0]}.anat/MNI_to_{input_parts.modality[0]}_nonlin_field.{special.extension}"/>
+      <output id="brain_volumes" name="Scaling factor and brain volumes" description="A file containing a scaling factor and brain volumes, based on skull-constrained registration, suitable for head-size normalisation (as the scaling is based on the skull size, not the brain size)"
+              automatic="True" cardinality="1" datatype="TxtFile"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_vols.txt"/>
+      <output id="biascorr_brain_image" name="The brain-extracted bias-corrected version of the output image"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_biascorr_brain.{special.extension}"/>
+      <output id="biascorr_brain_mask_image" name="The mask image of the brain-extracted bias-corrected image"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_biascorr_brain_mask.{special.extension}"/>
+      <output id="fast_pve_0_image" name="The CSF partial volume segmentation image from FAST"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_fast_pve_0.{special.extension}"/>
+      <output id="fast_pve_1_image" name="The GM partial volume segmentation image from FAST"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_fast_pve_1.{special.extension}"/>
+      <output id="fast_pve_2_image" name="The WM partial volume segmentation image from FAST"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_fast_pve_2.{special.extension}"/>
+      <!--output id="fast_pveseg_image" name="Summary image showing the greatest tissue fraction"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed" required="False"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_fast_pveseg.{special.extension}"/>
+      <output id="subcort_seg_image" name="Summary image of all subcortical segmentations (same as first_all_fast_firstseg)"
+              automatic="True" cardinality="1" datatype="NiftiImageFileCompressed" required="False"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_subcort_seg.{special.extension}"/>
+      <output id="first_directory" name="Directory with all other FIRST outputs"
+              automatic="True" cardinality="1" datatype="Directory" required="False"
+              location="{output_parts.base_directory[0]}.anat/first_results"/>
+      <output id="biascorr_to_std_sub_mat" name="Transformation matrix of the subcortical optimised MNI registration"
+              automatic="True" cardinality="1" datatype="MatFile" required="False"
+              location="{output_parts.base_directory[0]}.anat/{input_parts.modality[0]}_biascorr_to_std_sub.mat"/-->
+    </outputs>
+  </interface>
+</tool>
+
+<!--
+Usage: fsl_anat [options] -i <structural image>
+       fsl_anat [options] -d <existing anat directory>
+ 
+Arguments (You may specify one or more of):
+  -i <strucural image>         filename of input image (for one image only)
+  -d <anat dir>                directory name for existing .anat directory where this script will be run in place
+  -o <output directory>        basename of directory for output (default is input image basename followed by .anat)
+  - -clobber                   if .anat directory exist (as specified by -o or default from -i) then delete it and make a new one
+  - -weakbias                  used for images with little and/or smooth bias fields
+  - -noreorient                turn off step that does reorientation 2 standard (fslreorient2std)
+  - -nocrop                    turn off step that does automated cropping (robustfov)
+  - -nobias                    turn off steps that do bias field correction (via FAST)
+  - -noreg                     turn off steps that do registration to standard (FLIRT and FNIRT)
+  - -nononlinreg               turn off step that does non-linear registration (FNIRT)
+  - -noseg                     turn off step that does tissue-type segmentation (FAST)
+  - -nosubcortseg              turn off step that does sub-cortical segmentation (FIRST)
+  -s <value>                   specify the value for bias field smoothing (the -l option in FAST)
+  -t <type>                    specify the type of image (choose one of T1 T2 PD - default is T1)
+  - -nosearch                  specify that linear registration uses the -nosearch option (FLIRT)
+  - -betfparam                 specify f parameter for BET (only used if not running non-linear reg and also wanting brain extraction done)
+  - -nocleanup                 do not remove intermediate files
+-->

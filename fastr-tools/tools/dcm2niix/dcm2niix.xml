@@ -1,0 +1,42 @@
+<tool id="DicomToNifti" name="Dicom to Nifti converter" version="0.1">
+  <authors>
+    <author name="Hakim Achterberg" email="h.achterberg@erasmusmc.nl" url="http://www.bigr.nl/people/HakimAchterberg"/>
+  </authors>
+  <command version="0.1" url="">
+    <targets>
+      <target os="*" arch="*" bin="dcm2niix">
+	<paths>
+    <path type="bin" value="./bin" />
+  	</paths>
+	</target>
+    </targets>
+    <description>
+    </description>
+    <license/>
+    <authors>
+    </authors>
+  </command>
+  <interface>
+    <inputs>
+      <input order="1" id="dicom_image" name="Dicom Image/Directory" datatype="Directory" cardinality="1"
+             required="true"/>
+    </inputs>
+    <outputs>
+      <output order="0" id="directory" name="Output directory" datatype="Directory" prefix="-o" cardinality="1"
+              required="true" action="ensure"/>
+      <output id="image" automatic="True" name="Output Image" datatype="NiftiImageFile" cardinality="1"
+              method="path" location="{output.directory[0]}/.*\.nii"/>
+      <output id="bval" automatic="True" name="Output B-values" datatype="BValueFile" cardinality="1" method="path"
+              location="{output.directory[0]}/\d\d\d\d\d\d\d\d.*\.bval"/>
+      <output id="bvec" automatic="True" name="Output B-vectors" datatype="BVectorFile" cardinality="1" method="path"
+              location="{output.directory[0]}/\d\d\d\d\d\d\d\d.*\.bvec"/>
+    </outputs>
+  </interface>
+  <requirements/>
+  <tests/>
+  <help>
+  </help>
+  <cite>
+  </cite>
+  <references/>
+</tool>

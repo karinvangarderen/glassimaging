@@ -1,0 +1,45 @@
+<tool id="FSLReorient2Std" name="FSL tool for reorienting the fastest varying dimensions to the xyz ordering of MNI152" version="0.1">
+  <authors>
+    <author name="Marcel Zwiers" email="m.zwiers@donders.ru.nl" url="http://www.ru.nl/donders"/>
+  </authors>
+  <command version="5.0.9" url="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Fslutils">
+    <authors>
+      <author name="Matthew Webster"/>
+    </authors>
+<targets>
+      <target os="linux"  arch="*" module="fsl/5.0.9" bin="fslreorient2std">
+	<paths>
+          <path type="bin" value="/usr/local/fsl/bin/" />
+          <path type="lib" value="/usr/local/fsl/lib/" />
+        </paths>
+	</target>
+      <target os="darwin" arch="*" module="fsl/5.0.9" bin="fslreorient2std"/>
+</targets>
+    <description>
+       This is a simple tool from FSL designed to reorient an image to match the orientation of the standard template images (MNI152) so that they appear "the same way around" in FSLView. It requires that the image labels are correct in FSLView before this is run. It is also not a registration tool, so it will not align the image to standard space, it will only apply 90, 180 or 270 degree rotations about the different axes as necessary to get the labels in the same position as the standard template.
+    </description>
+  </command>
+  <interface>
+    <inputs>
+      <input id="image" name="Input image" datatype="NiftiImageFile" order="1" cardinality="1" required="True"/>
+    </inputs>
+    <outputs>
+  <!-- output id="reoriented_image" name="Reoriented image" datatype="as:image" order="2" cardinality="1" required="False"/ -->
+      <output id="reoriented_image" name="Reoriented image" datatype="NiftiImageFile" order="2" cardinality="1" required="False"/>
+    </outputs>
+  </interface>
+</tool>
+
+<!--
+Usage: fslreorient2std <input_image> [output_image]
+ 
+fslreorient2std is a tool for reorienting the image to match the
+approximate orientation of the standard template images (MNI152).
+It only applies 0, 90, 180 or 270 degree rotations.
+It is not a registration tool.
+It requires NIfTI images with valid orientation information
+in them (seen by valid labels in FSLView).  This tool
+assumes the labels are correct - if not, fix that before using this.
+If the output name is not specified the equivalent transformation
+ matrix is written to the standard output
+-->

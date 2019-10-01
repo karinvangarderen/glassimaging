@@ -1,0 +1,33 @@
+<tool id="ConnectedComponents" name="FSL connected compponent" version="0.1">
+  <authors>
+    <author name="Adriaan Versteeg" email="a.versteeg@erasmusmc.nl" url="http://www.bigr.nl/people/AdriaanVersteeg"/>
+  </authors>
+  <command version="5.0.9" url="">
+    <targets>
+        <target os="linux" arch="*" modules="fsl/5.0.9" bin="connectedcomp"/>
+    </targets>
+    <description>
+    </description>
+    <license/>
+    <authors>
+    </authors>
+  </command>
+  <interface>
+    <inputs>
+      <input id="image" name="Input Image" datatype="NiftiImageFileCompressed" order="1" cardinality="1" required="true"/>
+      <input id="connectivity" name="Connectivity" datatype="Int" order="3" cardinality="1" required="true"/>
+    </inputs>
+    <outputs>
+        <output id="image" name="output image" datatype="NiftiImageFileCompressed" order="2" cardinality="1" required="true" /> 
+    </outputs>
+  </interface>
+  <requirements/>
+  <tests/>
+  <help>
+  </help>
+  <cite>
+  </cite>
+  <references/>
+</tool>
+
+

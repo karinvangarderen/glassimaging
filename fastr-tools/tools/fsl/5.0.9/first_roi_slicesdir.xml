@@ -1,0 +1,45 @@
+<tool id="FirstROISlicesDir" name="Generates an html summary report of the segmentation results" version="0.1">
+  <authors>
+    <author name="Marcel Zwiers" email="m.zwiers@donders.ru.nl" url="http://www.ru.nl/donders"/>
+  </authors>
+  <command version="5.0.9" url="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FIRST">
+    <authors>
+      <author name="Brian Patenaude"/>
+      <author name="Matthew Webster"/>
+    </authors>
+    <targets>
+      <target os="linux"  arch="*" module="fsl/5.0.9" bin="first_roi_slicesdir"/>
+      <target os="darwin" arch="*" module="fsl/5.0.9" bin="first_roi_slicesdir"/>
+    </targets>
+    <description>
+      First_roi_slicesdir is a script from FSL to view slicesdir on a region of interest defined by a set of label images (e.g. output of FIRST). A set of temporary roi images are created, slicesdir is then run on those.
+    </description>
+  </command>
+  <interface>
+    <inputs>
+      <input id="t1_image" name="List of T1 images" datatype="NiftiImageFile" 
+             order="0" cardinality="1-*" required="True"/>
+      <input id="label_image" name="List of label images" datatype="NiftiImageFile"
+             order="1" cardinality="as:t1_image" required="True"/>
+    </inputs>
+    <outputs>
+      <output id="dummy" name="Dummy variable" datatype="FilePrefix" required="True" order="-1"/>
+      <output id="report" name="Summary report of the segmentation results" datatype="Directory"
+              automatic="True" location="{output.dummy[0].directory}/slicesdir" method="path" cardinality="1"/>
+    </outputs>
+    <!--outputs>
+      <output id="report" name="Summary report of the segmentation results" datatype="Directory"
+              automatic="True" location="{specials.workdir}/slicesdir" method="path" cardinality="1"/>
+    </outputs-->
+  </interface>
+</tool>
+
+<!--
+first_roi_slicesdir
+
+first_roi_slicesdir is a script to generate summary images, in a webpage format, for the segmentation outputs. It is very useful for checking the quality of segmentations, especially when there are many subjects. It runs the script slicesdir on a region of interest (ROI) defined by a set of label images (e.g. output of FIRST). A set of temporary ROI images are created and then slicesdir is then run on those.
+
+Usage: first_roi_slicesdir <list of t1_images> <list of label_images>
+
+Example: first_roi_slicesdir *_t1.nii.gz *_all_fast_firstseg.nii.gz
+-->

@@ -1,0 +1,45 @@
+<tool id="Fast" name="FAST Tissue Segmentation" version="0.1">
+  <authors>
+    <author name="Adriaan Versteeg" email="a.versteeg@erasmusmc.nl" url="http://www.bigr.nl/people/AdriaanVersteeg"/>
+  </authors>
+  <command version="5.0.9" url="">
+<targets>
+    <target os="linux"  arch="*" module="fsl/5.0.9" bin="fast">
+	<paths>
+          <path type="bin" value="/usr/local/fsl/bin/" />
+          <path type="lib" value="/usr/local/fsl/lib/" />
+        </paths>
+	</target>
+      <target os="darwin" arch="*" module="fsl/5.0.9" bin="fast"/>
+</targets>
+    <description>
+    </description>
+    <license/>
+    <authors>
+    </authors>
+  </command>
+  <interface>
+    <inputs>
+      <input id="image" name="Input Image" datatype="NiftiImageFile" order="-1" cardinality="1"
+             required="true"/>
+      <input id="classes" name="number of tissue-type classes; default=3" prefix="-n" datatype="Int" order="1"
+             cardinality="1" required="false"/>
+      <input id="iterations" name="number of main-loop iterations during bias-field removal; default=4" prefix="-I" datatype="Int" order="0" cardinality="1" required="false"/>
+    </inputs>
+    <outputs>
+        <output id="output_prefix" name="output directory" datatype="FilePrefix" prefix="-o"  cardinality="1" required="true"/>
+        <output id="segmentation" name="output image" datatype="NiftiImageFileCompressed" cardinality="1" automatic="true" location="{output.output_prefix[0]}_seg.{special.extension}" method="path"/>
+        <output id="csf" name="csf" datatype="NiftiImageFileCompressed" cardinality="1" automatic="true" location="{output.output_prefix[0]}_pve_0.{special.extension}" method="path"/>
+        <output id="gray_matter" name="gray matter" datatype="NiftiImageFileCompressed" cardinality="1" automatic="true" location="{output.output_prefix[0]}_pve_1.{special.extension}" method="path"/>
+        <output id="white_matter" name="white matter" datatype="NiftiImageFileCompressed" cardinality="1" automatic="true" location="{output.output_prefix[0]}_pve_2.{special.extension}" method="path"/>
+    </outputs>
+  </interface>
+  <requirements/>
+  <tests/>
+  <help>
+  </help>
+  <cite>
+  </cite>
+  <references/>
+</tool>
+

@@ -1,0 +1,55 @@
+<tool id="Eddy" name="Eddy correct" version="0.1">
+  <authors>
+    <author name="Karin van Garderen" email="k.vangarderen@erasmusmc.nl"/>
+  </authors>
+  <command version="5.0.9">
+    <authors>
+      <author name="Mark Jenkinson"/>
+      <author name="Steve Smith"/>
+    </authors>
+    <targets>
+      <target os="linux"  arch="*" module="fsl/5.0.9" bin="eddy_correct">
+	<paths>
+          <path type="bin" value="/usr/local/fsl/bin/" />
+          <path type="lib" value="/usr/local/fsl/lib/" />
+        </paths>
+	</target>
+      <target os="darwin" arch="*" module="fsl/5.0.9" bin="bet"/>
+    </targets>
+    <description>
+      Eddy correction for dwi images
+    </description>
+  </command>
+  <interface>
+    <inputs>
+      <input id="image" name="Input image" datatype="NiftiImageFile"
+             order="0" cardinality="1" required="True"/>
+	<input id="reference" name="Reference no" datatype="Int"
+             order="2" cardinality="1" required="True"/>
+      
+    </inputs>
+    <outputs>
+      <output id="image" name="Output image" datatype="NiftiImageFileCompressed"
+              order="1" cardinality="1" required="True"/>
+
+    </outputs>
+  </interface>
+  <cite>
+    @Article {s.m.smith,
+      author  = "Smith, S. M. ",
+      title   = "Fast robust automated brain extraction",
+      journal = "Human Brain Mapping",
+      year    = "2002",
+      volume  = "17",
+      number  = "3",
+      pages   = "143-155"
+    }
+    @Article {m.jenkinsonm.pechauds.smith2005,
+      author  = "Jenkinson, M. and Pechaud, M. and Smith, S. ",
+      title   = "BET2: MR-based estimation of brain, skull and scalp surfaces",
+      journal = "Eleventh Annual Meeting of the Organization for Human Brain Mapping",
+      year    = "2005"
+    }
+  </cite>
+</tool>
+

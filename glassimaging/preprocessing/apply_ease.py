@@ -24,7 +24,7 @@ def create_network_egd(apply_model=False, segmentation=False):
     link_t2_bet = output_pre_t2 >> bet_node.inputs['T2_image']
 
 
-    node_resample = network.create_node('custom/resample:0.1', tool_version='0.1', id='resample', resources=limit)
+    node_resample = network.create_node('glassimaging/resample:0.1', tool_version='0.1', id='resample', resources=limit)
     link_img_resample = output_pre_t1.output >> node_resample.inputs['image']
     link_mask_resample = bet_node.outputs['mask_image'] >> node_resample.inputs['mask']
     sink_resample = network.create_sink('NiftiImageFileCompressed', id='resampled_t1')
@@ -105,7 +105,7 @@ def create_coregister_transform_seg(network, source_image, source_baseline, sour
 
 def preprocess_image(network, source_dicom, id):
     dcm2nii = network.create_node('dcm2niix/DicomToNifti:0.1', tool_version='0.1', id='dcm2nii_{}'.format(id))
-    source_dicom >> dcm2nii.inputs['dicom_image']
+    source_dicom.output >> dcm2nii.inputs['dicom_image']
     fsl2std = network.create_node('fsl/FSLReorient2Std:5.0.9', tool_version='0.1', id='fsl2std_{}'.format(id))
     dcm2nii.outputs['image'] >> fsl2std.inputs['image']
     return fsl2std.outputs['reoriented_image']

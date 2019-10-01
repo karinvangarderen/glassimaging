@@ -1,0 +1,85 @@
+<tool id="DualRegression" name="Estimates individual spatial maps from a group-average ICA map" version="0.1">
+  <authors>
+    <author name="Marcel Zwiers" email="m.zwiers@donders.ru.nl" url="http://www.ru.nl/donders"/>
+  </authors>
+  <command version="5.0.9" url="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/DualRegression">
+    <authors>
+      <author name="Christian Beckmann"/>
+    </authors>
+    <targets>
+      <target os="linux"  arch="*" module="fsl/5.0.9" bin="dual_regression"/>
+      <target os="darwin" arch="*" module="fsl/5.0.9" bin="dual_regression"/>
+    </targets>
+    <description>
+       A common need for analyses such as ICA for resting-state FMRI is to run a group-average ICA, and then, for each subject, estimate a "version" of each of the group-level spatial maps. Currently, the best way to do this is to use dual regression. This:
+       * Regresses the group-spatial-maps into each subject\'s 4D dataset to give a set of timecourses (stage 1)
+       * Regresses those timecourses into the same 4D dataset to get a subject-specific set of spatial maps (stage 2)
+       It is then common to compare the spatial maps across groups of subjects to look for group differences, ideally using randomise permutation testing.
+    </description>
+  </command>
+  <interface>
+    <inputs>
+      <input id="group_ica_maps" name="4D image containing spatial IC maps (melodic_IC) from the whole-group ICA analysis"
+             order="0" required="True" datatype="NiftiImageFile" cardinality="1"/>
+      <input id="design_norm" name="Variance-normalise the timecourses used as the stage-2 regressors"
+             order="1" required="False" datatype="Int" cardinality="1" default="1" description="1 is recommended. If you don't normalise them, then you will only test for RSN 'shape' in your cross-subject testing. If you do normalise them, you are testing for RSN 'shape' and 'amplitude'"/>
+      <input id="design_matrix" name="Design matrix for final cross-subject modelling with randomise"
+             order="2" required="False" datatype="AnyType" cardinality="1" default="-1"/>  <!-- NB: "-1" as input is not the right datatype, don't know how to fix this!  -->
+      <input id="design_contrast" name="Design contrasts for final cross-subject modelling with randomise"
+             order="3" required="False" datatype="ConFile" cardinality="1"/>
+      <input id="n_perm" name="Number of permutations for randomise"
+             order="4" required="False" datatype="Int" cardinality="1" default="0" description="set to 1 for just raw tstat output, set to 0 to not run randomise at all"/>
+      <input id="fmri_images" name="List all subjects' preprocessed, standard-space 4D datasets"
+             order="6" required="True" datatype="NiftiImageFile" cardinality="unknown"/>
+    </inputs>
+    <outputs>
+      <output id="output_directory" name="Directory with all output and logfiles"
+              order="5" required="True" datatype="Directory" cardinality="1"/>
+      <output id="dr_stage1" name="Timeseries outputs of stage 1 of the dual-regression"
+              automatic="True" datatype="TxtFile" location="{output.output_directory[0]}/dr_stage1_subject00000.txt" method="path" description="dr_stage1_subject[#SUB].txt - the timeseries outputs of stage 1 of the dual-regression. One text file per subject, each containing columns of timeseries - one timeseries per group-ICA component. These timeseries can be fed into further network modelling, e.g., taking the N timeseries and generating an NxN correlation matrix."/>
+      <output id="dr_stage2" name="Spatial maps outputs of stage 2 of the dual-regression"
+              automatic="True" datatype="NiftiImageFileCompressed" location="{output.output_directory[0]}/dr_stage2_subject00000.{special.extension}" method="path" description="dr_stage2_subject[#SUB].nii.gz - the spatial maps outputs of stage 2 of the dual-regression. One 4D image file per subject, and within each, one timepoint (3D image) per original group-ICA component. These are the GLM 'parameter estimate' (PE) images, i.e., are not normalised by the residual within-subject noise. By default we recommend that it is these that are fed into stage 3 (the final cross-subject modelling)."/>
+      <output id="dr_stage2_Z" name="Z-stat images of the spatial maps outputs of stage 2"
+              automatic="True" datatype="NiftiImageFileCompressed" location="{output.output_directory[0]}/dr_stage2_subject00000_Z.{special.extension}" method="path" description="dr_stage2_subject[#SUB]_Z.nii.gz - the Z-stat version of the above, which could be fed into the cross-subject modelling, but in general does not seem to work as well as using the PEs."/>
+    </outputs>
+  </interface>
+  <cite>
+    @Article {pmid19357304,
+      Author  = "Filippini, N.  and MacIntosh, B. J.  and Hough, M. G.  and Goodwin, G. M.  and Frisoni, G. B.  and Smith, S. M.  and Matthews, P. M.  and Beckmann, C. F.  and Mackay, C. E. ",
+      Title   = "{{D}istinct patterns of brain activity in young carriers of the {A}{P}{O}{E}-epsilon4 allele}",
+      Journal = "Proc. Natl. Acad. Sci. U.S.A.",
+      Year    = "2009",
+      Volume  = "106",
+      Number  = "17",
+      Pages   = "7209--7214",
+      Month   = "Apr"
+    }
+    @Article {c.f.beckmannc.e.mackayn.filippinis.m.smith2009,
+      author  = "Beckmann, C. F. and Mackay, C. E. and Filippini, N. and Smith, S. M. ",
+      title   = "Group comparison of resting-state FMRI data using multi-subject ICA and dual regression",
+      journal = "OHBM",
+      year    = "2009"
+    }
+  </cite>
+</tool>
+
+<!--
+dual_regression v0.5 (beta)
+
+***NOTE*** ORDER OF COMMAND-LINE ARGUMENTS IS DIFFERENT FROM PREVIOUS VERSION
+
+Usage: dual_regression <group_IC_maps> <des_norm> <design.mat> <design.con> <n_perm> <output_directory> <input1> <input2> <input3> .........
+e.g.   dual_regression groupICA.gica/groupmelodic.ica/melodic_IC 1 design.mat design.con 500 grot `cat groupICA.gica/.filelist`
+
+<group_IC_maps_4D>            4D image containing spatial IC maps (melodic_IC) from the whole-group ICA analysis
+<des_norm>                    0 or 1 (1 is recommended). Whether to variance-normalise the timecourses used as the stage-2 regressors
+<design.mat>                  Design matrix for final cross-subject modelling with randomise
+<design.con>                  Design contrasts for final cross-subject modelling with randomise
+<n_perm>                      Number of permutations for randomise; set to 1 for just raw tstat output, set to 0 to not run randomise at all.
+<output_directory>            This directory will be created to hold all output and logfiles
+<input1> <input2> ...         List all subjects' preprocessed, standard-space 4D datasets
+
+<design.mat> <design.con>     can be replaced with just
+-1                            for group-mean (one-group t-test) modelling.
+If you need to add other randomise option then just edit the line after "EDIT HERE" below
+-->

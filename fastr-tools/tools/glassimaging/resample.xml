@@ -1,0 +1,23 @@
+<tool id="resample" name="resample" version="0.1">
+    <authors>
+        <author name="Karin van Garderen" />
+    </authors>
+    <command version="0.1">
+    <authors>
+        <author name="Karin van Garderen" />
+    </authors>
+    <targets>
+        <target arch="*" bin="resample.py" interpreter="python" os="*" paths="bin/" />
+	</targets>
+    </command>
+    <interface>
+        <inputs>
+            <input cardinality="1" datatype="NiftiImageFile" id="image" name="image" required="True" prefix="--img"/>
+            <input cardinality="1" datatype="NiftiImageFile" id="mask" name="mask" required="False" prefix="--mask"/>
+        </inputs>
+        <outputs>
+            <output cardinality="1" datatype="NiftiImageFileCompressed" id="image_resampled" name="image out" required="True" prefix="--imgout" />
+            <output cardinality="1" datatype="NiftiImageFileCompressed" id="mask_resampled" name="mask out" required="False" prefix="--maskout" />
+        </outputs>
+    </interface>
+</tool>

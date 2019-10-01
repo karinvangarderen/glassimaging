@@ -1,0 +1,93 @@
+<tool id="ApplyWarp" name="FSL tool for warping a source image to a target image" version="0.1">
+  <authors>
+    <author name="Marcel Zwiers" email="m.zwiers@donders.ru.nl" url="http://www.ru.nl/donders"/>
+  </authors>
+  <command version="5.0.9">
+    <authors>
+      <author name="Unknown"/>
+    </authors>
+    <targets>
+      <target os="linux"  arch="*" module="fsl/5.0.9" bin="applywarp"/>
+      <target os="darwin" arch="*" module="fsl/5.0.9" bin="applywarp"/>
+    </targets>
+    <description>
+       Use FSL's applywarp to apply the results of a FNIRT registration
+    </description>
+  </command>
+  <interface>
+    <inputs>
+      <input id="source_image" name="Image to be warped"
+             prefix="-i" datatype="NiftiImageFile" cardinality="1" required="True"/>
+      <input id="reference_image" name="Reference image for warping (FOV, resolution, etc)"
+             prefix="-r" datatype="NiftiImageFile" cardinality="1" required="True"/>
+      <input id="warp_coef_image" name="Warp/coefficient image"
+             prefix="-w" datatype="NiftiImageFile" cardinality="1" required="False"/>
+      <input id="abs_flag" name="Treat warp field as absolute: x' = w(x)"
+             prefix="--abs" datatype="Boolean" cardinality="1" required="False"/>
+      <input id="rel_flag" name="Treat warp field as relative: x' = x + w(x)"
+             prefix="--rel" datatype="Boolean" cardinality="1" required="False"/>
+      <input id="output_datatype" name="Force output data type"
+             order="0" prefix="-dt" cardinality="1" required="False" description="Possible datatypes are: char short int float double.">
+        <enum>char</enum>
+        <enum>short</enum>
+        <enum>int</enum>
+        <enum>float</enum>
+        <enum>double</enum>
+      </input>
+      <input id="super_flag" name="Intermediary supersampling of output, default is off"
+             prefix="-s" datatype="Boolean" cardinality="1" required="False"/>
+      <input id="superlevel_flag" name="Level of intermediary supersampling, a for 'automatic' or integer level. Default = 2"
+             prefix="--superlevel=" nospace="True" datatype="String" cardinality="1" required="False"/>
+      <input id="pre_mat" name="Filename for pre-transform (affine matrix)"
+             prefix="--premat=" nospace="True" datatype="MatFile" cardinality="1" required="False"/>
+      <input id="post_mat" name="Filename for post-transform (affine matrix)"
+             prefix="--postmat=" nospace="True" datatype="MatFile" cardinality="1" required="False"/>
+      <input id="mask_image" name="Mask image (in reference space)"
+             prefix="-m" datatype="NiftiImageFile" cardinality="1" required="False"/>
+      <input id="interpolation" name="interpolation method {nn,trilinear,sinc,spline}"
+             prefix="--interp=" nospace="True" cardinality="1" required="False">
+        <enum>nn</enum>
+        <enum>trilinear</enum>
+        <enum>sinc</enum>
+        <enum>spline</enum>
+      </input>
+      <input id="paddingsize" name="Extrapolates outside original volume by n voxels"
+             prefix="--paddingsize" datatype="Int" cardinality="1" required="False"/>
+    </inputs>
+    <outputs>
+      <output id="warped_image" name="Warped output image"
+              prefix="-o" datatype="NiftiImageFileCompressed" cardinality="1" required="False"/>
+    </outputs>
+  </interface>
+</tool>
+
+<!--
+Part of FSL (build 509)
+applywarp 
+Copyright(c) 2001, University of Oxford (Jesper Andersson)
+
+Usage: 
+applywarp -i invol -o outvol -r refvol -w warpvol
+applywarp -i invol -o outvol -r refvol -w coefvol
+
+
+Compulsory arguments (You MUST set one or more of):
+        -i,-&-in        filename of input image (to be warped)
+        -r,-&-ref       filename for reference image
+        -o,-&-out       filename for output (warped) image
+
+Optional arguments (You may optionally specify one or more of):
+        -w,-&-warp      filename for warp/coefficient (volume)
+        -&-abs          treat warp field as absolute: x' = w(x)
+        -&-rel          treat warp field as relative: x' = x + w(x)
+        -d,-&-datatype  Force output data type [char short int float double].
+        -s,-&-super     intermediary supersampling of output, default is off
+        -&-superlevel   level of intermediary supersampling, a for 'automatic' or integer level. Default = 2
+        -&-premat       filename for pre-transform (affine matrix)
+        -&-postmat      filename for post-transform (affine matrix)
+        -m,-&-mask      filename for mask image (in reference space)
+        -&-interp       interpolation method {nn,trilinear,sinc,spline}
+        -&-paddingsize  Extrapolates outside original volume by n voxels
+        -v,-&-verbose   switch on diagnostic messages
+        -h,-&-help      display this message
+-->
