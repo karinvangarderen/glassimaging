@@ -12,6 +12,8 @@ def create_network_egd(apply_model=True, segmentation=True):
     source_flair = network.create_source('NiftiImageFileCompressed', id='FLAIR')
     source_brainmask = network.create_source('NiftiImageFileCompressed', id='BRAINMASK')
 
+    limit = fastr.core.resourcelimit.ResourceLimit(memory='3G')
+
     node_resample = network.create_node('glassimaging/resample:0.1', tool_version='0.1', id='resample', resources=limit)
     link_img_resample = source_t1.output >> node_resample.inputs['image']
     link_mask_resample = source_brainmask.output >> node_resample.inputs['mask']
