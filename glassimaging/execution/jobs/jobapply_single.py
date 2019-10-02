@@ -17,7 +17,7 @@ class JobApplySingle(Job):
 
     def __init__(self, t1, t2, flair, t1gd, modelpath, brainmaskpath, configfile, outdir = '.'):
         super().__init__(configfile, 'result', outdir)
-        self.config["Nifti paths"] = [t1, t2, flair, t1gd]
+        self.config["Nifti paths"] = [t2, t1, flair, t1gd]
         self.config["Model path"] = modelpath
         self.config["Brainmask path"] = brainmaskpath
 
