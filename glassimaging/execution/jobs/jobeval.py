@@ -13,7 +13,8 @@ from glassimaging.evaluation.evaluator import StandardEvaluator
 from glassimaging.evaluation.utils import segmentNifti, plotResultImage, getPerformanceMeasures
 from glassimaging.dataloading.brats18 import Brats18
 from glassimaging.dataloading.btd import BTD
-from glassimaging.dataloading.hippocampus import Hippocampus
+from glassimaging.dataloading.brainmask import BrainmaskDataloader
+from glassimaging.dataloading.tissue import TissueDataloader
 from glassimaging.dataloading.transforms.totensor import ToTensor
 from glassimaging.dataloading.transforms.binaryseg import BinarySegmentation
 from glassimaging.dataloading.transforms.compose import Compose
@@ -69,8 +70,10 @@ class JobEval(Job):
             dataset = Brats18.fromFile(loc)
         elif self.config['Dataset'] == 'BTD':
             dataset = BTD.fromFile(loc)
-        elif self.config['Dataset'] == 'Hippocampus':
-            dataset = Hippocampus.fromFile(loc)
+        elif self.config['Dataset'] == 'Brainmask':
+            dataset = BrainmaskDataloader.fromFile(loc)
+        elif self.config['Dataset'] == 'Tissue':
+            dataset = TissueDataloader.fromFile(loc)
         
         if "Splits from File" in myconfig:
             dataset.loadSplits(myconfig["Splits from File"])
