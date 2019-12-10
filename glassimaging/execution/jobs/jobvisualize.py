@@ -37,7 +37,9 @@ class JobVisualize(Job):
                 "Batch size": {"type": "integer"},
                 "Output type": {"type": "string"},
                 "Dataset": {"type": "string"},
-                "Only first": {"type": "boolean"},
+                "Number of patches": {"type": "integer"},
+                "Splits from File": {"type": "string"},
+                "Splits": {"type": "array"}
             },
             "required": ["Nifti Source", "Patch size", "Batch size", "Dataset", "Model Source"]
         }
@@ -49,11 +51,12 @@ class JobVisualize(Job):
         ##### Set network specifics
         patchsize = myconfig["Patch size"]
         batchsize = myconfig["Batch size"]
-        output_type = myconfig["Output type"]
-        only_first = myconfig["Only first"]
 
         #### Data specifics
-        splits = myconfig["Splits"]
+        if "Splits" in myconfig:
+            splits = myconfig["Splits"]
+        else:
+            splits = [0]
 
         ##### load datamanager
         loc = myconfig["Nifti Source"]
@@ -87,10 +90,12 @@ class JobVisualize(Job):
         visualizer = NetworkVisualizer(evaluator.net)
 
         for i_batch, sample_batched in enumerate(dataloader):
+            if "Number of patches" in myconfig and i_batch == myconfig["Number of patches"]:
+                break
             images = sample_batched["data"]
 
             #### Visualize
-            acts, weights = visualizer.getWeightedActivations(imagebatch=images,output_index=(50,50,50),outputclass=1)
+            acts = visualizer.getAllActivations(imagebatch=images)
             with open(os.path.join(self.tmpdir, 'activations.pickle'), 'wb') as f:
                 pickle.dump(acts, f)
 
@@ -114,9 +119,8 @@ class JobVisualize(Job):
                 ax = f.add_subplot(2, 3, 6)
                 ax.imshow(acts[i, :, :, 54], cmap='inferno')
 
-                f.savefig(os.path.join(self.tmpdir, 'activations_{}.png'.format(i)))
+                f.savefig(os.path.join(self.tmpdir, 'activations_{}_{}.png'.format(i_batch, i)))
 
-            if only_first: break
         self.tearDown()
 
 def main(configfile, name, tmpdir, homedir=None):

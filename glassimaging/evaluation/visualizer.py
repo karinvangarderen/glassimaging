@@ -208,6 +208,33 @@ class NetworkVisualizer():
         indices = np.argsort(weights)
         return acts[indices, :, :, :], weights[indices]
 
+    def getAllActivations(self, imagebatch):
+        def activation_hook(module, inputv, outputv):
+            self.activations = outputv[0]
+
+        """ Method used to store the gradients """
+
+
+        ### Set model in eval mode, so dropout is not used
+        self.model.eval()
+
+        ## Send image to device
+        imagebatch = imagebatch.to(self.device).requires_grad_()
+
+        ### Register the backward hook that saves the gradient on first layer of the model
+        ### NB: make sure the model implements the getLastLayer method
+        self.model.getLastLayer().register_forward_hook(activation_hook)
+
+        ### Get the output so we know the shape of the tensor
+        self.model(imagebatch)
+
+        ### Fetch the activation that was saved by the gradient hook
+        acts = self.activations.data.numpy()
+
+        ### Reset the model gradients
+        self.model.zero_grad()
+
+        return acts
 
 
 
