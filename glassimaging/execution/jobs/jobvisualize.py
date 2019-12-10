@@ -120,6 +120,7 @@ class JobVisualize(Job):
                 ax.imshow(acts[i, :, :, 54], cmap='inferno')
 
                 f.savefig(os.path.join(self.tmpdir, 'activations_{}_{}.png'.format(i_batch, i)))
+                f.close()
 
         self.tearDown()
 
