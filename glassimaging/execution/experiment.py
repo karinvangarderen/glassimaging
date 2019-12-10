@@ -14,6 +14,7 @@ import subprocess
 import sys
 import re
 import json
+import shutil
 from datetime import datetime as dt
 
 class Experiment():
@@ -267,6 +268,10 @@ class Experiment():
 
         ### Functionality to run sequentially
         else:
+            for c in copy_jobs:
+                olddir = self.jobDirectories[c]
+                newdir = c
+                shutil.copytree(os.path.join(olddir), os.path.join(self.outputdir, newdir))
             for n in names:
                 jobtype = self.getTypeForJob(n)
                 runJob(jobtype, n, configfiles[n], self.outputdir)
