@@ -98,7 +98,6 @@ class ResUNet(nn.Module):
         res = self.softmax(res)
         return res
 
-
     @staticmethod
     def initFromDesc(desc):
         inputsize = desc['inputsize']
@@ -114,6 +113,9 @@ class ResUNet(nn.Module):
             'k': self.k,
             'num_groups': self.num_groups_norm
         }]
+
+    def getLastLayer(self):
+        return self.classifier
 
 """ 
 Convolution with residual connection. Any number of convolutions with leaky relu and group normalization.

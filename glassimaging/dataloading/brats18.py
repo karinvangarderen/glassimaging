@@ -99,7 +99,8 @@ class Brats18Dataset(NiftiDataset, Dataset):
         patientname = self.patients[idx]
         (image, segmentation) = self.loadSubjectImages(patientname, self.sequences)
         seg_file = self.getFileName(patientname, 'seg')
-        sample = {'data': image, 'seg': segmentation, 'seg_file': seg_file, 'subject': patientname}
+        sample = {'data': image, 'seg': segmentation, 'seg_file': seg_file, 'subject': patientname,
+                  't1_source': self.getFileName(patientname, self.sequences[0])}
         if self.transform is not None:
             sample = self.transform(sample)
         return sample

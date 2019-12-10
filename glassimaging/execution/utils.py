@@ -50,6 +50,8 @@ def getScriptForJob(jobtype):
         return 'glassimaging.execution.jobs.jobapply_single'
     elif jobtype == 'train_multipath':
         return 'glassimaging.execution.jobs.jobtrain_multipath'
+    elif jobtype == 'visualize':
+        return 'glassimaging.execution.jobs.jobvisualize'
 
 
 def runJob(type, name, configfile, outputdir):
