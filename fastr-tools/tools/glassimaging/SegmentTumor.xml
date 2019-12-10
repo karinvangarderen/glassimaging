@@ -8,7 +8,7 @@
         <author name="Karin van Garderen" email="k.vangarderen@erasmusmc.nl" />
         </authors>
         <targets>
-            <target os="*" arch="*" paths="../../glassimaging/" bin="apply_network.py" interpreter="python" />
+            <target os="*" arch="*" paths="vfs://home/glassimaging/" bin="apply_network.py" interpreter="python" />
         </targets>
 
 

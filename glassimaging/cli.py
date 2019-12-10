@@ -18,7 +18,7 @@ def cli():
 @click.option('-n', '--name', 'name', required=True)
 @click.option('-o', '--outputdir', 'outputdir', required=True)
 def experiment(configfile, name, outputdir):
-    """Console script for glassimaging."""
+    """Run an experiment from config file."""
     try:
         with open('platform.ini', 'r') as f:
             platform = f.readline()

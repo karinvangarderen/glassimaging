@@ -3,12 +3,12 @@
     <author name="Hakim Achterberg" email="h.achterberg@erasmusmc.nl" url="http://www.bigr.nl/people/HakimAchterberg"/>
   </authors>
   <command version="0.1" url="">
-    <targets>
-      <target os="*" arch="*" bin="dcm2niix">
-	<paths>
-    <path type="bin" value="./bin" />
-  	</paths>
-	</target>
+      <targets>
+        <target os="linux" arch="*" modules="dcm2niix/2019-04-10" bin="dcm2niix">
+        <paths>
+          <path type="bin" value="vfs://home/dcm2niix/" />
+        </paths>
+      </target>
     </targets>
     <description>
     </description>
