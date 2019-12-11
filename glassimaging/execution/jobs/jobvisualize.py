@@ -38,6 +38,7 @@ class JobVisualize(Job):
                 "Output type": {"type": "string"},
                 "Dataset": {"type": "string"},
                 "Number of patches": {"type": "integer"},
+                "Number of channels": {"type": "integer"},
                 "Splits from File": {"type": "string"},
                 "Splits": {"type": "array"}
             },
@@ -89,13 +90,18 @@ class JobVisualize(Job):
 
         visualizer = NetworkVisualizer(evaluator.net)
 
+        if "Number of channels" in myconfig:
+            num_channels = myconfig["Number of channels"]
+        else:
+            num_channels = 1
+
         for i_batch, sample_batched in enumerate(dataloader):
             if "Number of patches" in myconfig and i_batch == myconfig["Number of patches"]:
                 break
             images = sample_batched["data"]
 
             #### Visualize
-            acts = visualizer.getAllActivations(imagebatch=images)
+            acts = visualizer.getMultipleLayerRandomActivations(imagebatch=images, num_maps=num_channels)
             with open(os.path.join(self.tmpdir, 'activations.pickle'), 'wb') as f:
                 pickle.dump(acts, f)
 
@@ -103,24 +109,25 @@ class JobVisualize(Job):
             print(acts.shape)
 
             for i in range(acts.shape[0]):
+                for j in range(acts.shape[1]):
             ### PLOT EACH CHANNEL ACTIVATIONS
-                f = plt.figure(figsize=(20, 20))
-                ax = f.add_subplot(2, 3, 1)
-                ax.imshow(images[0, 0, 54, :, :], cmap='gray_r')
-                ax = f.add_subplot(2, 3, 2)
-                ax.imshow(images[0, 0, :, 54, :], cmap='gray_r')
-                ax = f.add_subplot(2, 3, 3)
-                ax.imshow(images[0, 0, :, :, 54], cmap='gray_r')
+                    f = plt.figure(figsize=(20, 20))
+                    ax = f.add_subplot(2, 3, 1)
+                    ax.imshow(images[0, 0, 54, :, :], cmap='gray_r')
+                    ax = f.add_subplot(2, 3, 2)
+                    ax.imshow(images[0, 0, :, 54, :], cmap='gray_r')
+                    ax = f.add_subplot(2, 3, 3)
+                    ax.imshow(images[0, 0, :, :, 54], cmap='gray_r')
 
-                ax = f.add_subplot(2, 3, 4)
-                ax.imshow(acts[i, 54, :, :], cmap='inferno')
-                ax = f.add_subplot(2, 3, 5)
-                ax.imshow(acts[i, :, 54, :], cmap='inferno')
-                ax = f.add_subplot(2, 3, 6)
-                ax.imshow(acts[i, :, :, 54], cmap='inferno')
+                    ax = f.add_subplot(2, 3, 4)
+                    ax.imshow(acts[i,j, 54, :, :], cmap='inferno')
+                    ax = f.add_subplot(2, 3, 5)
+                    ax.imshow(acts[i,j, :, 54, :], cmap='inferno')
+                    ax = f.add_subplot(2, 3, 6)
+                    ax.imshow(acts[i,j, :, :, 54], cmap='inferno')
 
-                f.savefig(os.path.join(self.tmpdir, 'activations_{}_{}.png'.format(i_batch, i)))
-                f.close()
+                    f.savefig(os.path.join(self.tmpdir, 'activations_batch{}_layer{}_channel{}.png'.format(i_batch, i, j)))
+                    plt.close(f)
 
         self.tearDown()
 
