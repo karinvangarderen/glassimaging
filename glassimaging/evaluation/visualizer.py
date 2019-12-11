@@ -250,7 +250,7 @@ class NetworkVisualizer():
 
         ### Register the forward hook that saves the activations
         ### NB: make sure the model implements the getMultipleConvLayers method
-        for layer in self.model.getMultipleConvLayers():
+        for layer in self.model.getLayersToVisualize():
             layer.register_forward_hook(activation_hook)
 
         ### Get the output so we know the shape of the tensor

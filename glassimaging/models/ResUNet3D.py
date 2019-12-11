@@ -117,17 +117,17 @@ class ResUNet(nn.Module):
     def getLastLayer(self):
         return self.classifier
 
-    def getMultipleConvLayers(self):
+    def getLayersToVisualize(self):
         return [self.body.conv,
-                self.body.resBlock1.convolutions[0],
-                self.body.resBlock2.convolutions[0],
-                self.body.resBlock3.convolutions[0],
-                self.body.resBlock4.convolutions[0],
-                self.body.resBlockmid.convolutions[0],
-                self.body.resBlock4_right.convolutions[0],
-                self.body.resBlock3_right.convolutions[0],
-                self.body.resBlock2_right.convolutions[0],
-                self.body.resBlock1_right.convolutions[0],
+                self.body.resBlock1,
+                self.body.resBlock2,
+                self.body.resBlock3,
+                self.body.resBlock4,
+                self.body.resBlockmid,
+                self.body.resBlock4_right,
+                self.body.resBlock3_right,
+                self.body.resBlock2_right,
+                self.body.resBlock1_right,
                 self.classifier
                 ]
 
