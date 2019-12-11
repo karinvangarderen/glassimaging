@@ -14,6 +14,8 @@ import torch
 import numpy as np
 import random
 from jsonschema import validate
+import matplotlib
+matplotlib.use('Agg')
 
 class Job():
     
