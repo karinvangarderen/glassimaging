@@ -279,7 +279,7 @@ class NetworkVisualizer():
             multiplier = imagebatch.shape[2] / act_array.shape[2]
             print(multiplier)
             if multiplier > 1:
-                act_array_new = torch.nn.functional.upsample(act_array, scale_factor=multiplier)
+                act_array_new = torch.nn.functional.interpolate(act_array, scale_factor=multiplier)
                 print(act_array_new.shape)
                 acts.append(act_array_new.detach().cpu().numpy()[0])
 

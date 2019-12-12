@@ -99,11 +99,10 @@ class JobVisualize(Job):
             if "Number of patches" in myconfig and i_batch == myconfig["Number of patches"]:
                 break
             images = sample_batched["data"]
+            seg = sample_batched["seg"]
 
             #### Visualize
             acts = visualizer.getMultipleLayerRandomActivations(imagebatch=images)
-            with open(os.path.join(self.tmpdir, 'activations.pickle'), 'wb') as f:
-                pickle.dump(acts, f)
 
             images = images.detach().numpy()
             print(acts.shape)
@@ -111,23 +110,28 @@ class JobVisualize(Job):
             for i in range(acts.shape[0]):
                 for j in range(acts.shape[1]):
 
-                    f = plt.figure(figsize=(20, 20))
-                    ax = f.add_subplot(2, 3, 1)
-                    ax.imshow(images[0, 0, 54, :, :], cmap='gray_r')
-                    ax = f.add_subplot(2, 3, 2)
-                    ax.imshow(images[0, 0, :, 54, :], cmap='gray_r')
-                    ax = f.add_subplot(2, 3, 3)
-                    ax.imshow(images[0, 0, :, :, 54], cmap='gray_r')
+                    # f = plt.figure(figsize=(20, 20))
+                    # ax = f.add_subplot(2, 3, 1)
+                    # ax.imshow(images[0, 0, 64, :, :], cmap='gray_r')
+                    # ax = f.add_subplot(2, 3, 2)
+                    # ax.imshow(images[0, 0, :, 64, :], cmap='gray_r')
+                    # ax = f.add_subplot(2, 3, 3)
+                    # ax.imshow(images[0, 0, :, :, 64], cmap='gray_r')
+                    #
+                    # ax = f.add_subplot(2, 3, 4)
+                    # ax.imshow(acts[i,j, 64, :, :], cmap='inferno')
+                    # ax = f.add_subplot(2, 3, 5)
+                    # ax.imshow(acts[i,j, :, 64, :], cmap='inferno')
+                    # ax = f.add_subplot(2, 3, 6)
+                    # ax.imshow(acts[i,j, :, :, 64], cmap='inferno')
+                    #
+                    # f.savefig(os.path.join(self.tmpdir, 'activations_batch{}_layer{}_channel{}.png'.format(i_batch, i, j)))
+                    # plt.close(f)
 
-                    ax = f.add_subplot(2, 3, 4)
-                    ax.imshow(acts[i,j, 54, :, :], cmap='inferno')
-                    ax = f.add_subplot(2, 3, 5)
-                    ax.imshow(acts[i,j, :, 54, :], cmap='inferno')
-                    ax = f.add_subplot(2, 3, 6)
-                    ax.imshow(acts[i,j, :, :, 54], cmap='inferno')
-
-                    f.savefig(os.path.join(self.tmpdir, 'activations_batch{}_layer{}_channel{}.png'.format(i_batch, i, j)))
-                    plt.close(f)
+                    plt.imsave(os.path.join(self.tmpdir, 'activations_batch{}_layer{}_channel{}_ax.png'.format(i_batch, i, j)), acts[i,j, :, :, 64], cmap='inferno')
+            for k in range(len(sequences)):
+                plt.imsave(os.path.join(self.tmpdir, 'input_{}_batch{}_ax.png'.format(k, i_batch, i, j)), images[0, k, :, :, 64], cmap='gray_r')
+            plt.imsave(os.path.join(self.tmpdir, 'seg_batch{}_ax.png'.format(i_batch, i, j)), seg[0, :, :, 64], cmap='inferno')
 
         self.tearDown()
 
