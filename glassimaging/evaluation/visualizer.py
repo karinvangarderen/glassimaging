@@ -251,23 +251,24 @@ class NetworkVisualizer():
 
         return acts
 
-    def getMultipleLayerRandomActivations(self, imagebatch, num_maps):
-
-        self.activations = []
-
+    def setActivationForwardHooks(self, num_maps):
         def activation_hook(module, inputv, outputv):
             self.activations.append(outputv[:,:num_maps,:,:,:])
+
+        ### Register the forward hook that saves the activations
+        ### NB: make sure the model implements the getMultipleConvLayers method
+        for layer in self.model.getLayersToVisualize():
+            layer.register_forward_hook(activation_hook)
+
+    def getMultipleLayerRandomActivations(self, imagebatch):
+
+        self.activations = []
 
         ### Set model in eval mode, so dropout is not used
         self.model.eval()
 
         ## Send image to device
         imagebatch = imagebatch.to(self.device).requires_grad_()
-
-        ### Register the forward hook that saves the activations
-        ### NB: make sure the model implements the getMultipleConvLayers method
-        for layer in self.model.getLayersToVisualize():
-            layer.register_forward_hook(activation_hook)
 
         ### Get the output so we know the shape of the tensor
         self.model(imagebatch)
@@ -280,7 +281,7 @@ class NetworkVisualizer():
             if multiplier > 1:
                 act_array_new = torch.nn.functional.upsample(act_array, scale_factor=multiplier)
                 print(act_array_new.shape)
-                acts.append(act_array_new.detach().numpy()[0])
+                acts.append(act_array_new.detach().cpu().numpy()[0])
 
         acts = np.stack(acts)
 

@@ -93,13 +93,15 @@ class JobVisualize(Job):
         else:
             num_channels = 1
 
+        visualizer.setActivationForwardHooks(num_channels)
+
         for i_batch, sample_batched in enumerate(dataloader):
             if "Number of patches" in myconfig and i_batch == myconfig["Number of patches"]:
                 break
             images = sample_batched["data"]
 
             #### Visualize
-            acts = visualizer.getMultipleLayerRandomActivations(imagebatch=images, num_maps=num_channels)
+            acts = visualizer.getMultipleLayerRandomActivations(imagebatch=images)
             with open(os.path.join(self.tmpdir, 'activations.pickle'), 'wb') as f:
                 pickle.dump(acts, f)
 
@@ -108,7 +110,7 @@ class JobVisualize(Job):
 
             for i in range(acts.shape[0]):
                 for j in range(acts.shape[1]):
-            ### PLOT EACH CHANNEL ACTIVATIONS
+
                     f = plt.figure(figsize=(20, 20))
                     ax = f.add_subplot(2, 3, 1)
                     ax.imshow(images[0, 0, 54, :, :], cmap='gray_r')
