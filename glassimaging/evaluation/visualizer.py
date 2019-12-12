@@ -8,13 +8,29 @@ import sys
 import torch
 import numpy as np
 import itertools
+import logging
+from glassimaging.models.utils import createModel
 
 
 class NetworkVisualizer():
 
     def __init__(self, model):
+        self.logger = logging.getLogger(__name__)
+        self.logger.addHandler(logging.StreamHandler(sys.stdout))
+        self.logger.setLevel(logging.DEBUG)
         self.model = model
-        self.device = self.getDevice()
+        self.device = NetworkVisualizer.getDevice()
+        self.model = self.model.to(self.device)
+
+    def setLogger(self, logger):
+        self.logger = logger
+
+    @staticmethod
+    def loadFromCheckpoint(loc):
+        checkpoint = torch.load(loc, map_location=NetworkVisualizer.getDevice())
+        net = createModel(checkpoint['model_desc'])
+        net.load_state_dict(checkpoint['model_state_dict'])
+        return NetworkVisualizer(net)
 
     @staticmethod
     def getDevice():

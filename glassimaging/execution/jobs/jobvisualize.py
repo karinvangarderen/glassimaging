@@ -85,10 +85,8 @@ class JobVisualize(Job):
         testset = dataset.getDataset(splits, sequences, transform=transform)
         dataloader = DataLoader(testset, batch_size=batchsize, num_workers=0, shuffle=True)
 
-        evaluator = StandardEvaluator.loadFromCheckpoint(os.path.join(loc_model, 'model.pt'))
+        visualizer = NetworkVisualizer.loadFromCheckpoint(os.path.join(loc_model, 'model.pt'))
         self.logger.info('Dataloader has {n} images.'.format(n=len(testset)))
-
-        visualizer = NetworkVisualizer(evaluator.net)
 
         if "Number of channels" in myconfig:
             num_channels = myconfig["Number of channels"]
