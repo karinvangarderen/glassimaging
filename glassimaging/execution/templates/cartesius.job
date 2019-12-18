@@ -5,6 +5,7 @@
 #SBATCH -o $outfile  # send stdout to outfile
 #SBATCH -e $errfile   # send stderr to errfile
 
+module load pre2019
 module load eb
 module load Miniconda3
 source activate pytorch
