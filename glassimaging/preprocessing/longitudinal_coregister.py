@@ -37,19 +37,30 @@ def create_network_longitudinal():
 
     limit = fastr.core.resourcelimit.ResourceLimit(memory='3G')
     coregister = network.create_node('elastix/Elastix:4.8', tool_version='0.2', id='coregister', resources=limit)
+    #source_brainmask_fixed.output >> coregister.inputs['fixed_mask']
+    #source_brainmask_moving.output >> coregister.inputs['moving_mask']
     sink_transform = network.create_sink('ElastixTransformFile', id='transform_file')
-    coregister.outputs['transform'] >> sink_transform.input
+    coregister.outputs['transform'][-1] >> sink_transform.input
     source_elastix_params.output >> coregister.inputs['parameters']
     source_t1Gd_moving.output >> coregister.inputs['moving_image']
-    source_t1Gd_fixed.output>> coregister.inputs['fixed_image']
+    source_t1Gd_fixed.output >> coregister.inputs['fixed_image']
 
-    transformix_t1 = create_transform(network, source_t1_moving, 't1', coregister.outputs['transform'])
-    transformix_t1gd = create_transform(network, source_t1Gd_moving, 't1gd', coregister.outputs['transform'])
-    transformix_t2 = create_transform(network, source_t2_moving, 't2', coregister.outputs['transform'])
-    transformix_flair = create_transform(network, source_flair_moving, 'flair', coregister.outputs['transform'])
+    transformix_t1 = create_transform(network, source_t1_moving, 't1', coregister.outputs['transform'][-1])
+    transformix_t1gd = create_transform(network, source_t1Gd_moving, 't1gd', coregister.outputs['transform'][-1])
+    transformix_t2 = create_transform(network, source_t2_moving, 't2', coregister.outputs['transform'][-1])
+    transformix_flair = create_transform(network, source_flair_moving, 'flair', coregister.outputs['transform'][-1])
 
-    transformix_seg = create_transform_seg(network, source_seg_moving, 'seg', coregister.outputs['transform'])
-    transformix_brainmask = create_transform_seg(network, source_brainmask_moving, 'brainmask', coregister.outputs['transform'])
+    transformix_seg = create_transform_seg(network, source_seg_moving, 'seg', coregister.outputs['transform'][-1])
+    transformix_brainmask = create_transform_seg(network, source_brainmask_moving, 'brainmask', coregister.outputs['transform'][-1])
+
+    ['all'] >> transformix_t1gd.inputs['determinant_of_jacobian_flag']
+    ['all'] >> transformix_t1gd.inputs['jacobian_matrix_flag']
+
+    jacobian_sink = network.create_sink('ITKImageFile', id='jacobian')
+    transformix_t1gd.outputs['jacobian_matrix'] >> jacobian_sink.input
+
+    jacobian_det_sink = network.create_sink('ITKImageFile', id='jacobian_det')
+    transformix_t1gd.outputs['determinant_of_jacobian'] >> jacobian_det_sink.input
 
     return network
 
@@ -90,7 +101,7 @@ def main(resultpath, inputpath, subject):
                    'seg_moving_in': {},
                    'brainmask_fixed_in': {},
                    'brainmask_moving_in': {},
-                   'parameters': 'vfs://home/glassimaging/glassimaging/preprocessing/elastix_parameters_nonlinear.txt'
+                   'parameters': ('vfs://home/glassimaging/glassimaging/preprocessing/elastix_parameters.txt', 'vfs://home/glassimaging/glassimaging/preprocessing/elastix_parameters_nonlinear.txt')
                    }
 
     directories = []
@@ -130,6 +141,7 @@ def main(resultpath, inputpath, subject):
             os.path.join(inputpath, exp_combination[1], 'brainmask.nii.gz'))
 
 
+
     sink_data = {
         't1_fixed': fastr.vfs.path_to_url(os.path.join(resultpath, '{sample_id}/t1_fixed{ext}')),
         't2_fixed': fastr.vfs.path_to_url(os.path.join(resultpath, '{sample_id}/t2_fixed{ext}')),
@@ -143,7 +155,9 @@ def main(resultpath, inputpath, subject):
         't1gd_moving': fastr.vfs.path_to_url(os.path.join(resultpath, '{sample_id}/t1gd_moving{ext}')),
         'seg_moving': fastr.vfs.path_to_url(os.path.join(resultpath, '{sample_id}/seg_moving{ext}')),
         'brainmask_moving': fastr.vfs.path_to_url(os.path.join(resultpath, '{sample_id}/brainmask_moving{ext}')),
-        'transform_file': fastr.vfs.path_to_url(os.path.join(resultpath, '{sample_id}/transform{ext}'))
+        'transform_file': fastr.vfs.path_to_url(os.path.join(resultpath, '{sample_id}/transform{ext}')),
+        'jacobian': fastr.vfs.path_to_url(os.path.join(resultpath, '{sample_id}/jacobian{ext}')),
+        'jacobian_det': fastr.vfs.path_to_url(os.path.join(resultpath, '{sample_id}/jacobian_det{ext}'))
     }
 
     network.execute(source_data, sink_data)
