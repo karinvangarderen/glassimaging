@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-
 class RandomCrop(object):
 
     def __init__(self, output_size):
@@ -17,6 +16,16 @@ class RandomCrop(object):
 
         h, w, d = image.shape[1:]
         new_h, new_w, new_d = self.output_size
+
+        assert(h > new_h), \
+            'Patch size must fit in image, in dimension 0 patch size {} > image size {} for subject {}'\
+                .format(new_h, h, sample['subject'])
+        assert(w > new_w), \
+            'Patch size must fit in image, in dimension 1 patch size {} > image size {} for subject {}'\
+                .format(new_w, w, sample['subject'])
+        assert(d > new_d), \
+            'Patch size must fit in image, in dimension 3 patch size {} > image size {} for subject {}'\
+                .format(new_d, d, sample['subject'])
 
         top = np.random.randint(0, h - new_h)
         left = np.random.randint(0, w - new_w)
