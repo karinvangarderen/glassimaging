@@ -13,6 +13,7 @@ from glassimaging.execution.jobs.job import Job
 from glassimaging.training.standardTrainer import StandardTrainer
 from glassimaging.dataloading.brats18 import Brats18
 from glassimaging.dataloading.btd import BTD
+from glassimaging.dataloading.egd import EGD
 from glassimaging.dataloading.brainmask import BrainmaskDataloader
 from glassimaging.dataloading.tissue import TissueDataloader
 from glassimaging.dataloading.transforms.randomcrop import RandomCrop
@@ -59,6 +60,8 @@ class JobTrain(Job):
         sequences = self.config["Sequences"] if "Sequences" in self.config else None
         if self.config['Dataset'] == 'Brats18':
             dataset = Brats18.fromFile(loc)
+        elif self.config['Dataset'] == 'EGD':
+            dataset = EGD.fromFile(loc)
         elif self.config['Dataset'] == 'BTD':
             dataset = BTD.fromFile(loc)
         elif self.config['Dataset'] == 'Brainmask':

@@ -13,6 +13,7 @@ from glassimaging.evaluation.evaluator import StandardEvaluator
 from glassimaging.evaluation.utils import segmentNifti, plotResultImage, getPerformanceMeasures
 from glassimaging.dataloading.brats18 import Brats18
 from glassimaging.dataloading.btd import BTD
+from glassimaging.dataloading.egd import EGD
 from glassimaging.dataloading.brainmask import BrainmaskDataloader
 from glassimaging.dataloading.tissue import TissueDataloader
 from glassimaging.dataloading.transforms.totensor import ToTensor
@@ -68,6 +69,8 @@ class JobEval(Job):
         loc = myconfig["Nifti Source"]
         if self.config['Dataset'] == 'Brats18':
             dataset = Brats18.fromFile(loc)
+        elif self.config['Dataset'] == 'EGD':
+            dataset = EGD.fromFile(loc)
         elif self.config['Dataset'] == 'BTD':
             dataset = BTD.fromFile(loc)
         elif self.config['Dataset'] == 'Brainmask':
@@ -88,7 +91,9 @@ class JobEval(Job):
             sequences = self.config["Sequences"]
         else:
             sequences = config_model["Sequences"]
-
+        print(sequences)
+        print(config_model)
+        
         transforms = [ToTensor()]
         if 'Whole Tumor' in self.config and self.config["Whole Tumor"]:
             transforms = [BinarySegmentation()] + transforms
@@ -115,7 +120,7 @@ class JobEval(Job):
             classifications = evaluator.segmentNifti(images, segfiles, patchsize, resultpaths)
             for i in range(0, len(subjects)):
                 seg = segs[i].numpy()
-                plotResultImage(dataset, resultpaths[i], self.tmpdir, subjects[i], output_type=output_type)
+                #plotResultImage(dataset, resultpaths[i], self.tmpdir, subjects[i], output_type=output_type)
                 for c in range(0,5):
                     truth = seg == c
                     positive = classifications[i] == c
