@@ -19,19 +19,19 @@ class RandomCrop(object):
         new_h, new_w, new_d = self.output_size
         if new_h < h:
             top = np.random.randint(0, h - new_h)
-        elif new_h = h:
+        elif new_h == h:
             top = 0
         else:
             raise Exception(f"Image for subject {subject} is too small for patch size.")
         if new_w < w:
             left = np.random.randint(0, w - new_w)
-        elif new_w = w:
+        elif new_w == w:
             left = 0
         else:
             raise Exception(f"Image for subject {subject} is too small for patch size.")
         if new_d < d:
             front = np.random.randint(0, d - new_d)
-        elif new_d = d:
+        elif new_d == d:
             front = 0
         else:
             raise Exception(f"Image for subject {subject} is too small for patch size.")
