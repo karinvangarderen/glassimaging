@@ -123,7 +123,19 @@ class Experiment():
             return self.getExecuteStringCartesius(names, jobscripts, configfiles, job_outputdirs)
         elif platform == 'gpucluster':
             return self.getExecuteStringGPUCluster(names, jobscripts, configfiles, job_outputdirs)
+        elif platform == 'bigrcluster':
+            return self.getExecuteStringBIGRCluster(names,jobscripts, configfiles, job_outputdirs)
+
         
+    def getExecuteStringBIGRCluster(self, names, jobscripts, configfiles, outputdirs):
+        string = ''
+        for n in names:
+            string = string + 'python3 -m {script} {name} {config} {outputdir}/../ --log {outputdir} \n'.format(\
+                                                        script = jobscripts[n],\
+                                                        name = n,\
+                                                        config = configfiles[n],\
+                                                        outputdir = outputdirs[n])
+        return string
     def getExecuteStringCartesius(self, names, jobscripts, configfiles, outputdirs):
         string = ''
         for n in names:
@@ -135,6 +147,8 @@ class Experiment():
             string = string + 'cp -r $TMPDIR/{name} {outputdir}/result \n'.format(\
                                                         name = n,\
                                                         outputdir = outputdirs[n])
+            string = string + 'rm -r $TMPDIR/{name}'.format(\
+                                                        name = n)
         return string
         
     def getExecuteStringGPUCluster(self, names, jobscripts, configfiles, outputdirs):
@@ -158,7 +172,17 @@ class Experiment():
             return self.getCopyStringCartesius(copy_jobs)
         elif platform == 'gpucluster':
             return self.getCopyStringGPUCluster(copy_jobs)
+        elif platform == 'bigrcluster':
+            return self.getCopyStringBIGRCluster(copy_jobs)
         
+    def getCopyStringBIGRCluster(self, copy_jobs):
+        copystring = ''
+        for d in copy_jobs: 
+            olddir = self.jobDirectories[d]
+            newdir = d
+            copystring = copystring + f'cp -r {olddir}/result {self.outputdir}/{newdir} \n'
+        return copystring
+
     def getCopyStringCartesius(self, copy_jobs):
         copystring = ''
         for d in copy_jobs: 
@@ -180,7 +204,7 @@ class Experiment():
         Edit this configuration to change the time limit, partition or location of log files
     """
     def getSlurmConfig(self, platform):
-        if platform == 'cartesius':
+        if platform == 'cartesius' or platform == 'bigrcluster':
             return {
                 'partition': 'gpu',
                 'timelimit': '2-00:00:00',
@@ -203,6 +227,9 @@ class Experiment():
             return 'glassimaging/execution/templates/cartesius.job'
         elif platform == 'gpucluster':
             return 'glassimaging/execution/templates/cluster.job'
+        elif platform == 'bigrcluster':
+            return 'glassimaging/execution/templates/bigr-cluster.job'
+
     """
     platform: string describing the current platform
     names: list of strings
@@ -225,7 +252,7 @@ class Experiment():
             self.jobDirectories[n] = job_outputdirs[n]
 
         ### Functionality to run on a slurm-based cluster
-        if platform == 'gpucluster' or platform == 'cartesius':
+        if platform == 'gpucluster' or platform == 'cartesius' or platform == 'bigrcluster':
             ######## Setup the command to copy old results to the node
             copystring = self.getCopyString(platform, copy_jobs)
 
@@ -293,5 +320,7 @@ if __name__ == '__main__':
         platform = 'gpucluster'
     elif 'cartesius' in platform:
         platform = 'cartesius'
+    elif 'bigrcluster' in platform:
+        platform = 'bigrcluster'
     exp = Experiment(configfile, name, directory, platform = platform)
     exp.run()
