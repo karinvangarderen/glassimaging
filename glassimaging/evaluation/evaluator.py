@@ -164,8 +164,23 @@ class StandardEvaluator:
         n_classes = self.getNumClasses()
 
         targetsize = [i - crop * 2 for i in inputsize]
+        
+        ### Padding if the image is smaller than the patch size
+        padding = [[0,0] for i in range(0,3)]
+        slice_list = [slice(0,input_array.shape[i+2]) for i in range(0,3)]
+        for i in range(0,3):
+            diff = targetsize[i] - input_array.shape[i+2]
+            if diff > 0:
+                to_fill_left = int(np.ceil(diff/2))
+                to_fill_right = int(np.floor(diff/2))
+                padding[i] = [to_fill_left, to_fill_right]
+                slice_list[i] = slice(to_fill_left, targetsize[i]-to_fill_right)
+        input_array = np.pad(input_array, [[0,0],[0,0]] + padding)
+        
         output = self.segmentWholeArray(input_array, inputsize, targetsize)
-
+        
+        slice_obj = (slice(None),) + tuple(slice_list)
+        output = output[slice_obj]
         for i in range(0, len(savepaths)):
             ######## Load segmentation to get affine and header information
             nifti = nib.load(header_files[i])
