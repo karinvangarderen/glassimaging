@@ -180,7 +180,7 @@ class Experiment():
         for d in copy_jobs: 
             olddir = self.jobDirectories[d]
             newdir = d
-            copystring = copystring + f'cp -r {olddir}/result {self.outputdir}/{newdir} \n'
+            copystring = copystring + f'cp -r {olddir} {self.outputdir}/{newdir} \n'
         return copystring
 
     def getCopyStringCartesius(self, copy_jobs):
