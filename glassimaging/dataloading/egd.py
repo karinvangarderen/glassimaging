@@ -84,7 +84,6 @@ class EGDDataset(NiftiDataset, Dataset):
 
     def __getitem__(self, idx):
         patientname = self.patients[idx]
-  
         (image, segmentation) = self.loadSubjectImages(patientname, self.sequences, normalized=False)
         for i in range(0, image.shape[0]):
             img = image[i]
@@ -97,7 +96,7 @@ class EGDDataset(NiftiDataset, Dataset):
                 raise ValueError('Standard deviation of image is zero')
             img = (img - mean) / std
             image[i] = img
-
+        segmentation = (segmentation > 0).astype(int)
         segfile = self.df.loc[patientname]['seg']
         sample = {'data': image, 'seg': segmentation, 'seg_file': segfile, 'subject': patientname}
         if self.transform is not None:
